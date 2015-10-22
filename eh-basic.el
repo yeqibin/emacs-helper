@@ -92,10 +92,10 @@
        (dirs (progn
                (dolist (x '("~" "c:" "d:" "e:" "f:" "g:"))
                  (push (file-name-as-directory
-                        (concat x "/projects"))
+                        (concat x "/projects/emacs-packages"))
                        output)
                  (push (file-name-as-directory
-                        (concat x "/project"))
+                        (concat x "/project/emacs-packages"))
                        output))
                (reverse output))))
   (dolist (directory dirs)
