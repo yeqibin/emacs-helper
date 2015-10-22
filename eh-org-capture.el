@@ -136,20 +136,22 @@
                     (height . 15)))))
 
   ;; keybinding
-  (define-key global-map "\C-ct"
-    (lambda () (interactive) (eh-org-capture nil "t")))
-  (define-key global-map "\C-cj"
-    (lambda () (interactive) (eh-org-capture nil "j")))
-  (define-key global-map "\C-cs"
-    (lambda () (interactive) (eh-org-capture nil "s")))
-  (define-key global-map "\C-cl"
-    (lambda () (interactive) (eh-org-capture nil "l")))
-  (define-key global-map "\C-cn"
-    (lambda () (interactive) (eh-org-capture nil "n")))
-  (define-key global-map "\C-cc"
-    (lambda () (interactive) (eh-org-capture nil "c")))
-  (define-key global-map "\C-ca"
-    (lambda () (interactive) (eh-org-capture nil "a"))))
+  ;; (define-key global-map "\C-ct"
+  ;;   (lambda () (interactive) (eh-org-capture nil "t")))
+  ;; (define-key global-map "\C-cj"
+  ;;   (lambda () (interactive) (eh-org-capture nil "j")))
+  ;; (define-key global-map "\C-cs"
+  ;;   (lambda () (interactive) (eh-org-capture nil "s")))
+  ;; (define-key global-map "\C-cl"
+  ;;   (lambda () (interactive) (eh-org-capture nil "l")))
+  ;; (define-key global-map "\C-cn"
+  ;;   (lambda () (interactive) (eh-org-capture nil "n")))
+  ;; (define-key global-map "\C-cc"
+  ;;   (lambda () (interactive) (eh-org-capture nil "c")))
+  ;; (define-key global-map "\C-ca"
+  ;;   (lambda () (interactive) (eh-org-capture nil "a")))
+
+  )
 
 (provide 'eh-org-capture)
 
