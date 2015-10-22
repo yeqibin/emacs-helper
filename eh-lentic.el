@@ -128,6 +128,16 @@
        lentic-commented-chunk-configuration)
       ())
 
+    (defmethod lentic-create
+      ((conf lentic-el2org-configuration))
+      (let ((buf (call-next-method conf)))
+        (with-current-buffer buf
+          (show-all)
+          ;; After run `show-all', the point move to
+          ;; the end of buffer, reupdate the point.
+          (lentic-update-point conf))
+        buf))
+
     (defmethod lentic-invert
       ((conf lentic-el2org-configuration))
       (lentic-m-oset
