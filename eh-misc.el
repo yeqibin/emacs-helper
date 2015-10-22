@@ -97,7 +97,7 @@
       (append (directory-files org-journal-dir t ".org$")
               org-agenda-files))
   :bind
-  (("C-c j" . org-journal-new-entry)))
+  (("C-c C-j" . org-journal-new-entry)))
 
 ;; ESS
 (use-package ess-site

@@ -38,6 +38,7 @@
 
   (use-package lentic-org
     :ensure nil
+    :bind (("C-c C-j" . eh-lentic-switch-window))
     :config
 
     (defclass lentic-org2el-configuration
