@@ -241,6 +241,23 @@ ask user for the window where move to and delete other windows"
 (use-package expand-region
   :bind (("C-c =" . er/expand-region)))
 
+;; wrap-region
+(use-package wrap-region
+  :ensure t
+  :config
+  (wrap-region-add-wrappers
+   '(("*" "*" nil org-mode)
+     ("~" "~" nil org-mode)
+     ("/" "/" nil org-mode)
+     ("=" "=" "+" org-mode)
+     ("_" "_" nil org-mode)
+     ("$" "$" nil (org-mode latex-mode))
+     ("\n#+BEGIN_SRC emacs-lisp\n" "\n#+END_SRC\n" "#" org-mode)
+     ("\n;; #+BEGIN_SRC emacs-lisp\n" "\n;; #+END_SRC\n" "#" emacs-lisp-mode)))
+  (add-hook 'org-mode-hook 'wrap-region-mode)
+  (add-hook 'emacs-lisp-mode-hook 'wrap-region-mode)
+  (add-hook 'latex-mode-hook 'wrap-region-mode))
+
 ;; browse-kill-ring
 (use-package browse-kill-ring
   :bind (("C-c y" . eh-browse-kill-ring))
