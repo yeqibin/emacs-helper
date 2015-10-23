@@ -121,6 +121,9 @@
 
     (defun eh-lentic-switch-window ()
       (interactive)
+      (when (derived-mode-p 'emacs-lisp-mode)
+        ;; Set buffer-local variable `lentic-init'
+        (setq lentic-init '(lentic-el2org-init)))
       (lentic-mode-create-from-init)
       (lentic-mode-split-window-below)
       (let ((window
