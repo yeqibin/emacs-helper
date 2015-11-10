@@ -125,6 +125,16 @@
         ivy-format-function 'eh-ivy-format-function
         ivy-display-style 'fancy)
 
+  (setq ivy-initial-inputs-alist
+        '((org-refile . "^")
+          (org-agenda-refile . "^")
+          (org-capture-refile . "^")
+          (counsel-M-x . "")
+          (counsel-describe-function . "")
+          (counsel-describe-variable . "")
+          (man . "^")
+          (woman . "^")))
+
   (defun eh-ivy-format-function (cands)
     (let ((i -1))
       (mapconcat
