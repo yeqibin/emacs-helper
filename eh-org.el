@@ -94,7 +94,7 @@
 
     (add-to-list 'org-latex-classes
                  '("ctexart"
-                   "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
+                   "\\documentclass[fontset=none,UTF8,a4paper,zihao=-4]{ctexart}"
                    ("\\section{%s}" . "\\section*{%s}")
                    ("\\subsection{%s}" . "\\subsection*{%s}")
                    ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -103,7 +103,7 @@
 
     (add-to-list 'org-latex-classes
                  '("ctexrep"
-                   "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexrep}"
+                   "\\documentclass[fontset=none,UTF8,a4paper,zihao=-4]{ctexrep}"
                    ("\\part{%s}" . "\\part*{%s}")
                    ("\\chapter{%s}" . "\\chapter*{%s}")
                    ("\\section{%s}" . "\\section*{%s}")
@@ -112,7 +112,7 @@
 
     (add-to-list 'org-latex-classes
                  '("ctexbook"
-                   "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexbook}"
+                   "\\documentclass[fontset=none,UTF8,a4paper,zihao=-4]{ctexbook}"
                    ("\\part{%s}" . "\\part*{%s}")
                    ("\\chapter{%s}" . "\\chapter*{%s}")
                    ("\\section{%s}" . "\\section*{%s}")
@@ -122,7 +122,7 @@
     (add-to-list 'org-latex-classes
                  '("beamer"
                    "\\documentclass{beamer}
-           \\usepackage[fntef,nofonts,fancyhdr]{ctex}"
+               \\usepackage[fontset=none,UTF8,a4paper,zihao=-4]{ctex}"
                    org-beamer-sectioning))
 
     ;; org不建议自定义org-latex-default-package-alist变量，但"inputenc" and "fontenc"两个宏包似乎和
