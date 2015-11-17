@@ -40,6 +40,11 @@
   ;; org-webpage's owp config
   (use-package owp-devtools
     :ensure nil)
+  (use-package owp-lentic
+    :ensure nil
+    :config
+    (define-key org-mode-map "\C-cj" 'owp/lentic-switch-window)
+    (define-key emacs-lisp-mode-map "\C-cj" 'owp/lentic-switch-window))
   (use-package chinese-pyim
     :ensure nil
     :config
