@@ -43,8 +43,7 @@
   (use-package owp-lentic
     :ensure nil
     :config
-    (define-key org-mode-map "\C-cj" 'owp/lentic-switch-window)
-    (define-key emacs-lisp-mode-map "\C-cj" 'owp/lentic-switch-window))
+    (owp/lentic-define-switch-window-key "\C-cj"))
   (use-package chinese-pyim
     :ensure nil
     :config
