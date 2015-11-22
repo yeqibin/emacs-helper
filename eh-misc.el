@@ -43,7 +43,7 @@
   (use-package owp-lentic
     :ensure nil
     :config
-    (owp/lentic-define-switch-window-key "\C-cj"))
+    (owp/lentic-mode-setup))
   (use-package chinese-pyim
     :ensure nil
     :config
