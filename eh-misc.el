@@ -40,16 +40,18 @@
   ;; org-webpage's owp config
   (use-package owp-devtools
     :ensure nil)
-  (use-package owp-lentic
-    :ensure nil
-    :config
-    (owp/lentic-mode-setup))
   (use-package chinese-pyim
     :ensure nil
     :config
     ;; chinese-pyim owp config
     (use-package chinese-pyim-devtools
       :ensure nil)))
+
+;; easy-lentic
+(use-package easy-lentic
+  :ensure nil
+  :config
+  (easy-lentic-mode-setup))
 
 ;; bbdb
 (use-package eh-ebib
