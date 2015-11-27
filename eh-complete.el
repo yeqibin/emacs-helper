@@ -122,22 +122,12 @@
   (setq ivy-count-format ""
         ;; ivy-count-format "%-2d "
         ivy-extra-directories nil
-        ivy-format-function 'eh-ivy-format-function
+        ivy-format-function 'ivy-format-function-arrow
         ivy-display-style 'fancy)
 
   (push '(counsel-M-x . "") ivy-initial-inputs-alist)
   (push '(counsel-describe-function . "") ivy-initial-inputs-alist)
   (push '(counsel-describe-variable . "") ivy-initial-inputs-alist)
-
-  (defun eh-ivy-format-function (cands)
-    (let ((i -1))
-      (mapconcat
-       (lambda (s)
-         (concat (if (eq (cl-incf i) ivy--index)
-                     "> "
-                   "  ")
-                 s))
-       cands "\n")))
 
   (defun eh-ivy-return-recentf-index (dir)
     (when (and (boundp 'recentf-list)
