@@ -54,10 +54,29 @@
    (funcall orig-fun oline)))
 
 (defun eh-sql-clean-sqsh-pretty-output (output)
-  (replace-regexp-in-string
-   "=" "-"
-   (replace-regexp-in-string
-    "^+[-+]+\n|" "|" output)))
+  (with-temp-buffer
+    (insert output)
+    ;; 删除 pretty 表格的水平分割线
+    (goto-char (point-min))
+    (while (re-search-forward "^+[-+]+\n|" nil t)
+      (replace-match "|" nil t))
+    ;; pretty 表格的表头中，使用 "-” 而不是 "=” 做为分割符
+    (goto-char (point-min))
+    (while (re-search-forward "=" nil t)
+      (replace-match "-" nil t))
+    ;; sqsh 输出的表格，如果存在中文字符，表格就无法对齐，
+    ;; 这里通过添加空格来对齐表格。
+    (goto-char (point-min))
+    (while (re-search-forward "| +\\cc+ +" nil t)
+      (let* ((str (match-string 0))
+             (char-list (string-to-list str))
+             (count 0))
+        (dolist (x char-list)
+          (when (string-match-p "\\cc" (char-to-string x))
+            (setq count (+ 1 count))))
+        (replace-match
+         (concat str (make-string count ?\ )))))
+    (buffer-string)))
 
 (advice-add 'sql-interactive-remove-continuation-prompt'
             :around #'eh-sql-pretty-output)
@@ -70,16 +89,18 @@
   (interactive)
   (when (null sql-buffer)
     (error "No SQLi buffer available"))
-  ;; Create buffer `eh-sql-all-columns' which contain
-  ;; all column-names.
-  (sql-redirect sql-buffer
-                '("select distinct name from sys.columns" "go")
-                "eh-sql-all-columns")
-  ;; Create buffer `eh-sql-all-columns' which contain
-  ;; all table-names.
-  (sql-redirect sql-buffer
-                '("select distinct name from sys.objects" "go")
-                "eh-sql-all-tables"))
+  (let ((str (replace-regexp-in-string
+              "[ *]" "" sql-buffer)))
+    ;; Create a buffer which contain all column-names.
+    (sql-redirect
+     sql-buffer
+     '("select distinct name from sys.columns" "go")
+     (concat "eh-sql-columns-" str))
+    ;; Create a buffer which contain all table-names.
+    (sql-redirect
+     sql-buffer
+     '("select distinct name from sys.objects" "go")
+     (concat "eh-sql-tables-" str))))
 
 (add-hook 'sql-mode-hook
           #'(lambda ()
@@ -100,7 +121,11 @@
                           (mapcar #'(lambda (x)
                                       (symbol-name (car x)))
                                   sql-connection-alist))))
-    (sql-connect (intern connect-name))))
+    (sql-connect (intern connect-name))
+    (message "Cache all table-names and column-names...")
+    (sit-for 3)
+    (eh-sql-cache-dabbrev)
+    (message "Table-names and column-names cache finished!")))
 
 (provide 'eh-sql)
 
