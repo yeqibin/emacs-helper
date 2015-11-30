@@ -197,9 +197,12 @@
         '(not message-mode git-commit-mode eshell-mode
               sfh/sawfish-console-mode))
 
+  ;; company-dabbrev
+  (setq company-dabbrev-char-regexp "[[:word:]_:@.-]+")
   (setq company-dabbrev-downcase nil)
   (setq company-dabbrev-ignore-case nil)
   (setq company-require-match nil)
+  (setq company-dabbrev-minimum-length 2)
 
   (setq company-backends
         '((company-capf company-dabbrev company-files)
