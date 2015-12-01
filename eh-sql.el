@@ -94,13 +94,20 @@
     ;; Create a buffer which contain all column-names.
     (sql-redirect
      sql-buffer
-     '("select distinct name from sys.columns" "go")
-     (concat "eh-sql-columns-" str))
+     '("select distinct COLUMN_NAME from information_schema.columns" "go")
+     (concat "eh-sql-column-list-" str))
+
     ;; Create a buffer which contain all table-names.
     (sql-redirect
      sql-buffer
-     '("select distinct name from sys.objects" "go")
-     (concat "eh-sql-tables-" str))))
+     '("select distinct TABLE_NAME from information_schema.columns" "go")
+     (concat "eh-sql-table-list-" str))
+
+    ;; Create a buffer which contain table-names which include schema.
+    (sql-redirect
+     sql-buffer
+     '("select distinct TABLE_SCHEMA + '.' + TABLE_NAME from information_schema.columns" "go")
+     (concat "eh-sql-schema-table-list-" str))))
 
 (add-hook 'sql-mode-hook
           #'(lambda ()
