@@ -33,25 +33,70 @@
 ;;; Code:
 (require 'sql)
 
-;; sqsh 是 isql 的增强版：
-;; sqsh -s SERV -U user -P passwd -D db -L bcp_colsep=','
-;; 1> select * from dbo.tzd_brly
-;; 1> go
-(setq sql-sybase-program "sqsh")
-(setq sql-sybase-options '("-w" "80" "-m" "pretty"))
+(defcustom eh-sql-mssql-program "sqsh"
+  "Use sqsh to connect MS sql.
 
-;; sqsh 的 prompt 类似 "1>" 或者 "2>"， 所以需要重新定义 `:prompt-regexp'
-;; 值得注意的是： regexp 中最后的 *空格* 绝对不能少，否则 prompt 就会消失，
-;; 这个问题困扰我好长时间，最后慢慢调试代码后才发现问题，
-;; 具体细节可以看：`sql-interactive-remove-continuation-prompt' 这个函数的定义。
-(sql-set-product-feature 'sybase :prompt-regexp "^[0-9]+> ")
+sqsh 是 isql 的增强版，可以连接 sybase 服务器或者 MS sql 服务器，
+其登录命令是：
+
+   sqsh -s SERV -U user -P passwd -D db -L bcp_colsep=','
+
+登录成功后，可以运行相关的sql语句，例如：
+
+   1> select * from dbo.tzd_brly
+   1> go
+
+Starts `sql-interactive-mode' after doing some setup."
+  :type 'file
+  :group 'SQL)
+
+(defcustom eh-sql-mssql-options '("-w" "80" "-m" "pretty")
+  "List of additional options for `eh-sql-mssql-program'."
+  :type '(repeat string)
+  :version "20.8"
+  :group 'SQL)
+
+(defcustom eh-sql-mssql-login-params '(server user password database)
+  "List of login parameters needed to connect to MS sql by sqsh."
+  :type 'sql-login-params
+  :version "24.1"
+  :group 'SQL)
+
+(defalias 'eh-sql-comint-mssql 'sql-comint-sybase
+  "由于 sqsh 和 isql 兼容，所以 sql.el 内置的 `sql-sybase' 就可以使用 sqsh，
+但出于直观，我还是自定义了一个新的后端：mssql，与内置的ms后端做区别。")
+
+(push '(mssql
+        :name "mssql"
+        :font-lock sql-mode-ms-font-lock-keywords
+        :sqli-program eh-sql-mssql-program
+        :sqli-options eh-sql-mssql-options
+        :sqli-login eh-sql-mssql-login-params
+        :sqli-comint-func eh-sql-comint-mssql
+        ;; sqsh 的 prompt 类似 "1>" 或者 "2>"， 所以需要重新定义 `:prompt-regexp'
+        ;; 值得注意的是： regexp 中最后的 *空格* 绝对不能少，否则 prompt 就会消失，
+        ;; 这个问题困扰我好长时间，最后慢慢调试代码后才发现问题，
+        ;; 具体细节可以看：`sql-interactive-remove-continuation-prompt' 这个函数的定义。
+        :prompt-regexp "^[0-9]+> "
+        :prompt-length 5
+        :syntax-alist ((?@ . "_"))
+        :terminator ("^go" . "go"))
+      sql-product-alist)
+
+(defun eh-sql-mssql (&optional buffer)
+  (interactive "P")
+  (sql-product-interactive 'mssql buffer))
 
 ;; sqsh 的输出有问题，默认输出的列特别的宽，看起来很痛苦，pretty style 的显示
 ;; 稍微好一点，但它添加了太多的分割，感觉很眼花，这里添加一个过滤功能，将不必要的
 ;; 分割去掉。
 (defun eh-sql-pretty-output (orig-fun oline)
-  (eh-sql-clean-sqsh-pretty-output
-   (funcall orig-fun oline)))
+  (let ((output (funcall orig-fun oline)))
+    (if (and (boundp 'eh-sql-mssql-program)
+             (stringp eh-sql-mssql-program)
+             (string-match-p "sqsh$" eh-sql-mssql-program))
+        (eh-sql-clean-sqsh-pretty-output output)
+      output)))
 
 (defun eh-sql-clean-sqsh-pretty-output (output)
   (with-temp-buffer
@@ -122,7 +167,7 @@
 (defun eh-sql-connect ()
   "Connect selected database in `sql-connection-alist' with `sql-connect'."
   (interactive)
-  (setq sql-product 'sybase)
+  (setq sql-product 'mssql)
   (let ((connect-name
          (completing-read "Which database do you want to connect: "
                           (mapcar #'(lambda (x)
