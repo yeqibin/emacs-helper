@@ -4,6 +4,7 @@
 (load-library "eh-complete")
 (load-library "eh-functions")
 (load-library "eh-exwm")
+(load-library "eh-elfeed")
 (load-library "eh-misc")
 
 ;; Local Variables:
