@@ -36,17 +36,28 @@
   (setq elfeed-feeds
         '("http://nullprogram.com/feed/"
           "http://www.terminally-incoherent.com/blog/feed/"
-          ("https://linuxtoy.org/feed" linux linuxtoy)
-          ("http://planet.emacsen.org/atom.xml" emacs planet-emacs)
+          ;; linuxtoy
+          ("https://linuxtoy.org/feed" linux)
+          ;; planet-emacs
+          ("http://planet.emacsen.org/atom.xml" emacs)
           ("http://repo.or.cz/w/org-mode.git/rss" org)
-          ("http://repo.or.cz/w/emacs.git/rss" emacs emacs.git)
-          ("http://solidot.org.feedsportal.com/c/33236/f/556826/index.rss" linux solidot)
-          ("http://www.phoronix.com/rss.php" linux phoronix)
-          ("http://ergoemacs.org/emacs/blog.xml" emacs ergoemacs)
-          ("http://emacsredux.com/atom.xml" emacs emacsredux)
-          ("http://www.emacswiki.org/emacs/full-diff.rss?action=rss;days=7;all=0;showedit=0;full=1;diff=1" emacs emacswiki)
+          ;; emacs.git
+          ("http://repo.or.cz/w/emacs.git/rss" emacs)
+          ;; solidot
+          ("http://solidot.org.feedsportal.com/c/33236/f/556826/index.rss" linux)
+          ;; phoronix
+          ("http://www.phoronix.com/rss.php" linux)
+          ;; ergoemacs
+          ("http://ergoemacs.org/emacs/blog.xml" emacs)
+          ;; emacsredux
+          ("http://emacsredux.com/atom.xml" emacs)
+          ;; emacswiki
+          ("http://www.emacswiki.org/emacs/full-diff.rss?action=rss;days=7;all=0;showedit=0;full=1;diff=1" emacs)
+          ;; planet debian
           ("http://planet.debian.org/rss20.xml" debian linux)
+          ;; planet gnome
           ("http://planet.gnome.org/atom.xml" gnome)
+          ;; lwn
           ("http://lwn.net/headlines/rss" linux lwn)
           ("http://news.baidu.com/n?cmd=1&class=civilnews&tn=rss" baidu-news civil)
           ("http://news.baidu.com/n?cmd=1&class=internet&tn=rss" baidu-news internet)
