@@ -25,14 +25,7 @@
 ;; 然后使用gnus访问。
 
 (add-to-list 'gnus-secondary-select-methods
-             '(nntp "localhost"))
-
-(add-to-list 'gnus-secondary-select-methods
-             '(nnimap "rss"
-                      (nnimap-address "localhost")
-                      (nnimap-stream network)
-                      (nnimap-inbox "INBOX")
-                      (nnimap-split-methods 'nnmail-split-fancy)))
+             '(nntp "news.gmane.org"))
 
 ;; gnus-posting-styles设置
 ;; 1. 邮件发送时字符编码设置.

@@ -382,16 +382,6 @@
                      (interactive)
                      (delete-other-windows)
                      (next-line 1)))
-    (local-set-key (kbd "<return>")
-                   (lambda ()
-                     (interactive)
-                     (eh-gnus-view-article-with-eww)
-                     (move-beginning-of-line 1)))
-    (local-set-key (kbd "C-<return>")
-                   (lambda ()
-                     (interactive)
-                     (eh-gnus-view-article-with-eww t)
-                     (move-beginning-of-line 1)))
     (local-set-key (kbd "<f1>") 'gnus-uu-mark-all)
     (local-set-key (kbd "<f2>") 'gnus-uu-unmark-thread)
     (local-set-key (kbd "<f3>") 'gnus-uu-mark-thread))
@@ -571,7 +561,7 @@
 
   ;; 构建threads时抓取旧文章标题,
   ;; 注意： 网速不快时不要使用这个选项。
-  (setq gnus-fetch-old-headers 'some)
+  (setq gnus-fetch-old-headers nil)
 
   ;; 生成水平树
   (setq gnus-generate-tree-function
