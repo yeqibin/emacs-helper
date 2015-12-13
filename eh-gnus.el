@@ -54,12 +54,7 @@
           :ensure nil)
         ;; 加载 gnus 可共享的配置
         (use-package eh-gnus-common
-          :ensure nil)
-        ;; rss2email同步脚本
-        (use-package eh-rss2email
-          :ensure nil
-          :config
-          (eh-rss2email-cron)))
+          :ensure nil))
     (message "eh-gnus个人帐号文件不存在，eh-gnus启动失败!!!")))
 
 (global-set-key (kbd "C-x m")
