@@ -65,7 +65,40 @@
           ("http://news.baidu.com/ns?word=title%3A%C9%BD%CE%F7%BF%BC%CA%D4&tn=newsrss&sr=0&cl=2&rn=20&ct=0"
            baidu-news shanxi kaoshi)
           ("http://news.baidu.com/ns?word=%CE%C0%C9%FA%D5%FE%B2%DF&tn=newsrss&sr=0&cl=2&rn=20&ct=0" baidu-news zhengce)
-          ("http://www.emacsist.com/rss" emacs emacsist))))
+          ("http://www.emacsist.com/rss" emacs emacsist)))
+
+  (add-hook 'elfeed-new-entry-hook
+            (elfeed-make-tagger :before "2 weeks ago"
+                                :remove 'unread))
+  (add-hook 'elfeed-new-entry-hook
+            (elfeed-make-tagger :feed-url "youku\\.com"
+                                :add '(video youku)))
+
+  (defun eh-elfeed-search-live-filter ()
+    (interactive)
+    (let ((default-filter "@6-months-ago +unread")
+          tags)
+      (dolist (feed elfeed-feeds)
+        (when (and (listp feed)
+                   (> (length feed) 1))
+          (setq tags
+                (append tags
+                        (cdr feed)))))
+      (setq tags
+            (append '("*None*")
+                    (mapcar #'symbol-name
+                            (delete-duplicates tags))))
+      (unwind-protect
+          (let ((elfeed-search-filter-active :live))
+            (setq elfeed-search-filter
+                  (replace-regexp-in-string
+                   "\\*None\\*" ""
+                   (concat (concat default-filter " +")
+                           (completing-read
+                            (concat "Filter: " default-filter " +") tags)))))
+        (elfeed-search-update :force))))
+
+  (define-key elfeed-search-mode-map "s" 'eh-elfeed-search-live-filter))
 
 (provide 'eh-elfeed)
 
