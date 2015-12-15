@@ -31,6 +31,7 @@
 
 ;;; Code:
 (use-package elfeed
+  :init (setq url-queue-timeout 30)
   :config
   (setq elfeed-feeds
         '("http://nullprogram.com/feed/"
@@ -70,32 +71,39 @@
   (add-hook 'elfeed-new-entry-hook
             (elfeed-make-tagger :before "2 weeks ago"
                                 :remove 'unread))
-  (add-hook 'elfeed-new-entry-hook
-            (elfeed-make-tagger :feed-url "youku\\.com"
-                                :add '(video youku)))
+
+  (defun eh-elfeed-count-unread ()
+    (let ((counts (make-hash-table)))
+      (with-elfeed-db-visit (e _)
+        (let ((tags (elfeed-entry-tags e)))
+          (when (memq 'unread tags)
+            (dolist (tag tags)
+              (unless (eq tag 'unread)
+                (cl-incf (gethash tag counts 0)))))))
+      (cl-loop for tag hash-keys of counts using (hash-values count)
+               collect (cons tag count))))
 
   (defun eh-elfeed-search-live-filter ()
     (interactive)
     (let ((default-filter "@6-months-ago +unread")
-          tags)
-      (dolist (feed elfeed-feeds)
-        (when (and (listp feed)
-                   (> (length feed) 1))
-          (setq tags
-                (append tags
-                        (cdr feed)))))
-      (setq tags
-            (append '("*None*")
-                    (mapcar #'symbol-name
-                            (delete-duplicates tags))))
+          tags-alist)
+      (setq tags-alist
+            (append
+             (list (cons "*NONE*" default-filter))
+             (mapcar
+              #'(lambda (x)
+                  (let ((tag-name (symbol-name (car x)))
+                        (num-str (number-to-string (cdr x))))
+                    (cons (concat tag-name " (" num-str ")")
+                          (concat default-filter " +" tag-name))))
+              (eh-elfeed-count-unread))))
       (unwind-protect
-          (let ((elfeed-search-filter-active :live))
+          (let ((elfeed-search-filter-active :live)
+                (choose (completing-read
+                         (concat "Filter: " default-filter " +")
+                         (mapcar #'car tags-alist))))
             (setq elfeed-search-filter
-                  (replace-regexp-in-string
-                   "\\*None\\*" ""
-                   (concat (concat default-filter " +")
-                           (completing-read
-                            (concat "Filter: " default-filter " +") tags)))))
+                  (cdr (assoc choose tags-alist))))
         (elfeed-search-update :force))))
 
   (define-key elfeed-search-mode-map "s" 'eh-elfeed-search-live-filter))
