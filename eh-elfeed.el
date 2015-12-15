@@ -72,20 +72,25 @@
             (elfeed-make-tagger :before "2 weeks ago"
                                 :remove 'unread))
 
-  (defun eh-elfeed-count-unread ()
+  (defun eh-elfeed-count-unread (&optional show-all)
     (let ((counts (make-hash-table)))
       (with-elfeed-db-visit (e _)
         (let ((tags (elfeed-entry-tags e)))
-          (when (memq 'unread tags)
+          (when (or show-all
+                    (memq 'unread tags))
             (dolist (tag tags)
-              (unless (eq tag 'unread)
+              (unless (and (not show-all)
+                           (eq tag 'unread))
                 (cl-incf (gethash tag counts 0)))))))
       (cl-loop for tag hash-keys of counts using (hash-values count)
                collect (cons tag count))))
 
-  (defun eh-elfeed-search-live-filter ()
-    (interactive)
-    (let ((default-filter "@6-months-ago +unread")
+  (defun eh-elfeed-search-live-filter (show-all)
+    (interactive "P")
+    (let ((default-filter
+            (if show-all
+                "@6-months-ago"
+              "@6-months-ago +unread"))
           tags-alist)
       (setq tags-alist
             (append
@@ -96,7 +101,7 @@
                         (num-str (number-to-string (cdr x))))
                     (cons (concat tag-name " (" num-str ")")
                           (concat default-filter " +" tag-name))))
-              (eh-elfeed-count-unread))))
+              (eh-elfeed-count-unread show-all))))
       (unwind-protect
           (let ((elfeed-search-filter-active :live)
                 (choose (completing-read
