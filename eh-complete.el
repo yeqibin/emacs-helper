@@ -187,6 +187,10 @@
 ;; company-mode
 (use-package company
   :config
+  (use-package chinese-pyim-company
+    :config
+    ;; 禁用 dabberv 中文补全
+    (setq pyim-company-complete-chinese-enable nil))
   (setq company-idle-delay 0.2)
   (setq company-minimum-prefix-length 2)
   (setq company-selection-wrap-around t)
