@@ -207,7 +207,8 @@
   :config
   (setq default-input-method "chinese-pyim")
   (setq-default pyim-english-input-switch-function
-                'pyim-dynamic-english-input-function)
+                '(pyim-dynamic-english-input-function
+                  pyim-isearch-force-english-input))
   (when (eq system-type 'windows-nt)
     (setq pyim-use-tooltip nil)
     (setq pyim-page-length 7))
