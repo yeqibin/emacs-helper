@@ -206,9 +206,13 @@
 (use-package chinese-pyim
   :config
   (setq default-input-method "chinese-pyim")
+  ;; 使用双拼
+  (setq pyim-default-pinyin-scheme 'pyim-shuangpin)
   (setq-default pyim-english-input-switch-function
                 '(pyim-dynamic-english-input-function
                   pyim-isearch-force-english-input))
+  ;; 开启拼音搜索功能
+  (setq pyim-isearch-enable-pinyin-search t)
   (when (eq system-type 'windows-nt)
     (setq pyim-use-tooltip nil)
     (setq pyim-page-length 7))
