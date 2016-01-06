@@ -209,9 +209,15 @@
   ;; 使用双拼
   (setq pyim-default-pinyin-scheme 'pyim-shuangpin)
   (setq-default pyim-english-input-switch-function
-                '(pyim-dynamic-english-input-function
-                  pyim-isearch-force-english-input
-                  pyim-probe-outside-string-or-comment-p))
+                '(pyim-probe-dynamic-english
+                  pyim-probe-isearch-mode
+                  pyim-probe-program-mode
+                  pyim-probe-org-structure-template))
+
+  (setq-default pyim-punctuation-half-width-functions
+                '(pyim-probe-punctuation-line-beginning
+                  pyim-probe-punctuation-after-punctuation))
+
   ;; 开启拼音搜索功能
   (setq pyim-isearch-enable-pinyin-search t)
   (when (eq system-type 'windows-nt)
