@@ -210,7 +210,8 @@
   (setq pyim-default-pinyin-scheme 'pyim-shuangpin)
   (setq-default pyim-english-input-switch-function
                 '(pyim-dynamic-english-input-function
-                  pyim-isearch-force-english-input))
+                  pyim-isearch-force-english-input
+                  pyim-probe-outside-string-or-comment-p))
   ;; 开启拼音搜索功能
   (setq pyim-isearch-enable-pinyin-search t)
   (when (eq system-type 'windows-nt)
