@@ -112,7 +112,7 @@ Starts `sql-interactive-mode' after doing some setup."
     ;; sqsh 输出的表格，如果存在中文字符，表格就无法对齐，
     ;; 这里通过添加空格来对齐表格。
     (goto-char (point-min))
-    (while (re-search-forward "| +\\cc+ +" nil t)
+    (while (re-search-forward "|[^|]+" nil t)
       (let* ((str (match-string 0))
              (char-list (string-to-list str))
              (count 0))
