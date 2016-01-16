@@ -220,9 +220,13 @@
 
   ;; 开启拼音搜索功能
   (setq pyim-isearch-enable-pinyin-search t)
-  (when (eq system-type 'windows-nt)
-    (setq pyim-use-tooltip nil)
-    (setq pyim-page-length 7))
+  (if (eq system-type 'windows-nt)
+      (setq pyim-use-tooltip nil
+            pyim-page-length 7)
+    (setq pyim-use-tooltip t
+          pyim-page-length 5
+          ;; 使用 GTK 绘制选词框, 反应速度快，不卡顿。
+          x-gtk-use-system-tooltips t))
   :bind
   (("C-<SPC>" . toggle-input-method)
    ("C-;" . pyim-toggle-input-ascii)
