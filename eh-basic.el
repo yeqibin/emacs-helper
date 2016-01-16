@@ -221,9 +221,9 @@
   ;; 开启拼音搜索功能
   (setq pyim-isearch-enable-pinyin-search t)
   (if (eq system-type 'windows-nt)
-      (setq pyim-use-tooltip nil
-            pyim-page-length 7)
-    (setq pyim-use-tooltip t
+      (setq pyim-use-tooltip 'popup
+            pyim-page-length 5)
+    (setq pyim-use-tooltip 'pos-tip
           pyim-page-length 5
           ;; 使用 GTK 绘制选词框, 反应速度快，不卡顿。
           x-gtk-use-system-tooltips t))

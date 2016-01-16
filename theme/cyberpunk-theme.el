@@ -119,6 +119,7 @@
                                        :background ,cyberpunk-bg-1
                                        :box (:line-width -1 :style released-button)))))
    `(highlight ((,class (:background ,cyberpunk-gray-5))))
+   `(tooltip ((t (:foreground ,cyberpunk-fg :background ,cyberpunk-bg-1))))
 
    ;;; compilation
    `(compilation-column-face ((,class (:foreground ,cyberpunk-yellow))))
