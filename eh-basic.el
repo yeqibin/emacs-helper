@@ -208,7 +208,7 @@
   (setq default-input-method "chinese-pyim")
   ;; 使用双拼
   (setq pyim-default-pinyin-scheme 'pyim-shuangpin)
-  (setq-default pyim-english-input-switch-function
+  (setq-default pyim-english-input-switch-functions
                 '(pyim-probe-dynamic-english
                   pyim-probe-isearch-mode
                   pyim-probe-program-mode
