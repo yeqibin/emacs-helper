@@ -224,6 +224,7 @@
         pyim-page-length 5)
   :bind
   (("C-<SPC>" . toggle-input-method)
+   ("M-i" . pyim-convert-pinyin-at-point)
    ("C-;" . pyim-toggle-input-ascii)
    ("C-:" . pyim-delete-word-from-personal-buffer)))
 
