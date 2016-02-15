@@ -223,10 +223,8 @@
   (setq pyim-use-tooltip 'popup
         pyim-page-length 5)
   :bind
-  (("C-<SPC>" . toggle-input-method)
-   ("C-i" . pyim-convert-pinyin-at-point)
-   ("C-;" . pyim-toggle-input-ascii)
-   ("C-:" . pyim-delete-word-from-personal-buffer)))
+  (("C-i" . pyim-convert-pinyin-at-point)
+   ("C-;" . pyim-delete-word-from-personal-buffer)))
 
 ;; Chinese fonts setup
 (use-package chinese-fonts-setup
