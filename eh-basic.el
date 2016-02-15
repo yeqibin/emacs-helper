@@ -223,7 +223,7 @@
   (setq pyim-use-tooltip 'popup
         pyim-page-length 5)
   :bind
-  (("C-i" . pyim-convert-pinyin-at-point)
+  (("M-j" . pyim-convert-pinyin-at-point)
    ("C-;" . pyim-delete-word-from-personal-buffer)))
 
 ;; Chinese fonts setup
