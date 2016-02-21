@@ -95,7 +95,7 @@
 
   (defun eh-exwm/firefox ()
     (interactive)
-    (eh-exwm/run-shell-command "Iceweasel"))
+    (eh-exwm/run-shell-command "iceweasel"))
 
   (defun eh-exwm/file-manager ()
     (interactive)
@@ -107,7 +107,7 @@
 
   (defun eh-exwm/launch-crossover-app (app bottle)
     (eh-exwm/run-shell-command
-     (format nil "/opt/cxoffice/bin/wine --bottle %s --cx-app '%s'" bottle app)))
+     (format "/opt/cxoffice/bin/wine --bottle %s --cx-app '%s'" bottle app)))
 
   (defun eh-exwm/qq ()
     (interactive)
@@ -154,7 +154,7 @@
     (eh-exwm/run-shell-command "exec xscreensaver-command -lock"))
 
   (defun eh-exwm/run-shell-command-interactively (command)
-    (interactive (list (read-shell-command "$ ")))
+    (interactive (list (read-shell-command "Run shell command: ")))
     (start-process-shell-command command nil command))
 
   (defun eh-exwm/switch-to-1-workspace ()
@@ -173,31 +173,34 @@
     (interactive)
     (exwm-workspace-switch 3))
 
-  (exwm-input-set-key (kbd "C-t R") 'restart)
-  (exwm-input-set-key (kbd "C-t i") 'eh-exwm/xprop)
-  (exwm-input-set-key (kbd "C-t q") 'eh-exwm/sawfish-session-dialog)
-  (exwm-input-set-key (kbd "C-t v") 'eh-exwm/file-manager)
-  (exwm-input-set-key (kbd "C-t c") 'eh-exwm/x-terminal-emulator)
-  (exwm-input-set-key (kbd "C-t m") 'eh-exwm/view-debian-menu)
-  (exwm-input-set-key (kbd "C-t ,") 'start-menu-popup)
+  (global-unset-key (kbd "C-t"))
+  (push ?\C-t exwm-input-prefix-keys)
+
+  (exwm-input-set-key (kbd "C-t R")  nil)
+  (exwm-input-set-key (kbd "C-t q")  nil)
+  (exwm-input-set-key (kbd "C-t v")  'eh-exwm/file-manager)
+  (exwm-input-set-key (kbd "C-t c")  'eh-exwm/x-terminal-emulator)
+  (exwm-input-set-key (kbd "C-t m")  'eh-exwm/view-debian-menu)
+  (exwm-input-set-key (kbd "C-t ,")  'start-menu-popup)
   (exwm-input-set-key (kbd "C-t ff") 'eh-exwm/firefox)
   (exwm-input-set-key (kbd "C-t fq") 'eh-exwm/qq)
   (exwm-input-set-key (kbd "C-t fj") 'eh-exwm/jabref)
   (exwm-input-set-key (kbd "C-t fc") 'eh-exwm/cajviewer)
   (exwm-input-set-key (kbd "C-t fp") 'eh-exwm/pdfreader)
   (exwm-input-set-key (kbd "C-t fw") 'eh-exwm/winxp)
-  (exwm-input-set-key (kbd "C-t w") 'exwm-workspace-switch)
-  (exwm-input-set-key (kbd "C-t x") 'eh-exwm/x-terminal-emulator)
-  (exwm-input-set-key (kbd "C-t c") 'eh-exwm/run-shell-command-interactively)
+  (exwm-input-set-key (kbd "C-t w")  'exwm-workspace-switch)
+  (exwm-input-set-key (kbd "C-t x")  'eh-exwm/x-terminal-emulator)
+  (exwm-input-set-key (kbd "C-t c")  'eh-exwm/run-shell-command-interactively)
 
-  (exwm-input-set-key (kbd "C-t 0") 'eh-exwm/switch-to-1-workspace)
-  (exwm-input-set-key (kbd "C-t 1") 'eh-exwm/switch-to-2-workspace)
-  (exwm-input-set-key (kbd "C-t 2") 'eh-exwm/switch-to-3-workspace)
-  (exwm-input-set-key (kbd "C-t 3") 'eh-exwm/switch-to-4-workspace)
+  (exwm-input-set-key (kbd "C-t 1")  'eh-exwm/switch-to-1-workspace)
+  (exwm-input-set-key (kbd "C-t 2")  'eh-exwm/switch-to-2-workspace)
+  (exwm-input-set-key (kbd "C-t 3")  'eh-exwm/switch-to-3-workspace)
+  (exwm-input-set-key (kbd "C-t 4")  'eh-exwm/switch-to-4-workspace)
 
   ;; We always need a way to go back to line-mode from char-mode
   (exwm-input-set-key (kbd "C-t t") 'exwm-reset)
   (exwm-input-set-key (kbd "C-t C-t") 'exwm-reset)
+  (exwm-input-set-key (kbd "s-r") 'exwm-reset)
 
   ;; The following example demonstrates how to set a key binding only available
   ;; in line mode. It's simply done by first push the prefix key to
