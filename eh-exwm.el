@@ -75,42 +75,129 @@
                           (string= "gimp" exwm-instance-name))
                   (exwm-workspace-rename-buffer (concat "Exwm:" exwm-title)))))
 
-  ;; `exwm-input-set-key' allows you to set a global key binding (available in
-  ;; any case). Following are a few examples.
-  ;; + We always need a way to go back to line-mode from char-mode
-  (exwm-input-set-key (kbd "s-r") 'exwm-reset)
-  ;; + Bind a key to switch workspace interactively
-  (exwm-input-set-key (kbd "s-w") 'exwm-workspace-switch)
-  ;; + Set shortcuts to switch to a certain workspace.
-  (exwm-input-set-key (kbd "s-0")
-                      #'(lambda ()
-                          (interactive)
-                          (exwm-workspace-switch 0)))
-  (exwm-input-set-key (kbd "s-1")
-                      #'(lambda ()
-                          (interactive)
-                          (exwm-workspace-switch 1)))
-  (exwm-input-set-key (kbd "s-2")
-                      #'(lambda ()
-                          (interactive)
-                          (exwm-workspace-switch 2)))
-  (exwm-input-set-key (kbd "s-3")
-                      #'(lambda ()
-                          (interactive)
-                          (exwm-workspace-switch 3)))
-  ;; + Application launcher ('M-&' also works if the output buffer does not
-  ;;   bother you). Note that there is no need for processes to be created by
-  ;;   Emacs.
-  (exwm-input-set-key (kbd "s-&")
-                      #'(lambda (command)
-                          (interactive (list (read-shell-command "$ ")))
-                          (start-process-shell-command command nil command)))
-  ;; + 'slock' is a simple X display locker provided by suckless tools. 'i3lock'
-  ;;   is a more feature-rich alternative.
-  (exwm-input-set-key (kbd "s-<f2>")
-                      #'(lambda ()
-                          (interactive)
-                          (start-process "" nil "slock")))
+  (defun eh-exwm/run-shell-command (cmd)
+    (start-process-shell-command cmd nil cmd))
+
+  (defun eh-exwm/suspend-computer ()
+    (interactive)
+    (eh-exwm/run-shell-command "systemctl suspend"))
+
+  (defun eh-exwm/hibernate-computer ()
+    (eh-exwm/run-shell-command "systemctl hibernate"))
+
+  (defun eh-exwm/restart-computer ()
+    (interactive)
+    (eh-exwm/run-shell-command "systemctl reboot"))
+
+  (defun eh-exwm/shutdown-commputer ()
+    (interactive)
+    (eh-exwm/run-shell-command "systemctl poweroff"))
+
+  (defun eh-exwm/firefox ()
+    (interactive)
+    (eh-exwm/run-shell-command "Iceweasel"))
+
+  (defun eh-exwm/file-manager ()
+    (interactive)
+    (eh-exwm/run-shell-command "nautilus --no-desktop"))
+
+  (defun eh-exwm/crossover ()
+    (interactive)
+    (eh-exwm/run-shell-command "/opt/cxoffice/bin/crossover"))
+
+  (defun eh-exwm/launch-crossover-app (app bottle)
+    (eh-exwm/run-shell-command
+     (format nil "/opt/cxoffice/bin/wine --bottle %s --cx-app '%s'" bottle app)))
+
+  (defun eh-exwm/qq ()
+    (interactive)
+    (eh-exwm/launch-crossover-app "TM.exe" "腾讯_TM_2013"))
+
+  (defun eh-exwm/word ()
+    (interactive)
+    (eh-exwm/launch-crossover-app "WINWORD.EXE" "Microsoft_Office_2007"))
+
+  (defun eh-exwm/excel ()
+    (interactive)
+    (eh-exwm/launch-crossover-app "EXCEL.EXE" "Microsoft_Office_2007"))
+
+  (defun eh-exwm/ppt ()
+    (interactive)
+    (eh-exwm/launch-crossover-app "POWERPNT.EXE" "Microsoft_Office_2007"))
+
+  (defun eh-exwm/winxp ()
+    (interactive)
+    (eh-exwm/run-shell-command "VBoxManage startvm winxp"))
+
+  (defun eh-exwm/mplayer ()
+    (interactive)
+    (eh-exwm/run-shell-command "smplayer"))
+
+  (defun eh-exwm/htop ()
+    (interactive)
+    (eh-exwm/run-shell-command "x-terminal-emulator -t htop -e htop"))
+
+  (defun eh-exwm/x-terminal-emulator ()
+    (interactive)
+    (eh-exwm/run-shell-command "x-terminal-emulator -t default-terminal"))
+
+  (defun eh-exwm/launch-new-terminal ()
+    (interactive)
+    (eh-exwm/run-shell-command "x-terminal-emulator"))
+
+  (defun eh-exwm/power-manager ()
+    (interactive)
+    (eh-exwm/run-shell-command "xfce4-power-manager-settings"))
+
+  (defun eh-exwm/lock-screen ()
+    (interactive)
+    (eh-exwm/run-shell-command "exec xscreensaver-command -lock"))
+
+  (defun eh-exwm/run-shell-command-interactively (command)
+    (interactive (list (read-shell-command "$ ")))
+    (start-process-shell-command command nil command))
+
+  (defun eh-exwm/switch-to-1-workspace ()
+    (interactive)
+    (exwm-workspace-switch 0))
+
+  (defun eh-exwm/switch-to-2-workspace ()
+    (interactive)
+    (exwm-workspace-switch 1))
+
+  (defun eh-exwm/switch-to-3-workspace ()
+    (interactive)
+    (exwm-workspace-switch 2))
+
+  (defun eh-exwm/switch-to-4-workspace ()
+    (interactive)
+    (exwm-workspace-switch 3))
+
+  (exwm-input-set-key (kdb "C-t R") 'restart)
+  (exwm-input-set-key (kdb "C-t i") 'eh-exwm/xprop)
+  (exwm-input-set-key (kdb "C-t q") 'eh-exwm/sawfish-session-dialog)
+  (exwm-input-set-key (kdb "C-t v") 'eh-exwm/file-manager)
+  (exwm-input-set-key (kdb "C-t c") 'eh-exwm/x-terminal-emulator)
+  (exwm-input-set-key (kdb "C-t m") 'eh-exwm/view-debian-menu)
+  (exwm-input-set-key (kdb "C-t ,") 'start-menu-popup)
+  (exwm-input-set-key (kdb "C-t ff") 'eh-exwm/firefox)
+  (exwm-input-set-key (kdb "C-t fq") 'eh-exwm/qq)
+  (exwm-input-set-key (kdb "C-t fj") 'eh-exwm/jabref)
+  (exwm-input-set-key (kdb "C-t fc") 'eh-exwm/cajviewer)
+  (exwm-input-set-key (kdb "C-t fp") 'eh-exwm/pdfreader)
+  (exwm-input-set-key (kdb "C-t fw") 'eh-exwm/winxp)
+  (exwm-input-set-key (kdb "C-t w") 'exwm-workspace-switch)
+  (exwm-input-set-key (kdb "C-t x") 'eh-exwm/x-terminal-emulator)
+  (exwm-input-set-key (kbd "C-t c") 'eh-exwm/run-shell-command-interactively)
+
+  (exwm-input-set-key (kbd "C-t 0") 'eh-exwm/switch-to-1-workspace)
+  (exwm-input-set-key (kbd "C-t 1") 'eh-exwm/switch-to-2-workspace)
+  (exwm-input-set-key (kbd "C-t 2") 'eh-exwm/switch-to-3-workspace)
+  (exwm-input-set-key (kbd "C-t 3") 'eh-exwm/switch-to-4-workspace)
+
+  ;; We always need a way to go back to line-mode from char-mode
+  (exwm-input-set-key (kbd "C-t t") 'exwm-reset)
+  (exwm-input-set-key (kbd "C-t C-t") 'exwm-reset)
 
   ;; The following example demonstrates how to set a key binding only available
   ;; in line mode. It's simply done by first push the prefix key to
@@ -136,33 +223,45 @@
 
   ;; Debian menu
   (defun exwm-generate-debian-menu-commands ()
-    (load "/var/lib/emacs/exwm/exwm-menu.el")
-    (mapc #'(lambda (x)
-              (let* ((debian-menu-command (nth 1 x))
-                     (debian-menu-name (nth 2 x))
-                     (exwm-command-name
-                      (concat "EXWM/"
-                              (replace-regexp-in-string
-                               "^-\\|-$" ""
-                               (replace-regexp-in-string
-                                "-+" "-"
-                                (replace-regexp-in-string
-                                 "[^a-zA-Z0-9]" "-"
-                                 (replace-regexp-in-string
-                                  "/Debian\\|/Applications" ""
-                                  debian-menu-name)))))))
-                (eval `(defun ,(intern exwm-command-name) ()
-                         (interactive)
-                         (start-process-shell-command ,exwm-command-name nil ,debian-menu-command)))))
-          exwm-debian-menu-alist))
+    (let ((file "/var/lib/emacs/exwm/exwm-menu.el")
+          debian-menu-alist)
+      (when (file-exists-p file)
+        (load file)
+        (setq debian-menu-alist
+              (when (boundp 'exwm-debian-menu-alist)
+                exwm-debian-menu-alist))
+        (dolist (debian-menu debian-menu-alist)
+          (let* ((debian-menu-command (nth 1 debian-menu))
+                 (debian-menu-name (nth 2 debian-menu))
+                 (exwm-command-name
+                  (concat "EXWM/"
+                          (replace-regexp-in-string
+                           "^-\\|-$" ""
+                           (replace-regexp-in-string
+                            "-+" "-"
+                            (replace-regexp-in-string
+                             "[^a-zA-Z0-9]" "-"
+                             (replace-regexp-in-string
+                              "/Debian\\|/Applications" ""
+                              debian-menu-name)))))))
+            (eval `(defun ,(intern exwm-command-name) ()
+                     (interactive)
+                     (start-process-shell-command ,exwm-command-name nil ,debian-menu-command))))))))
+
   (exwm-generate-debian-menu-commands)
 
   ;; Do not forget to enable EXWM. It will start by itself when things are ready.
   (exwm-enable)
 
+  ;; Active systemtray
+  (use-package exwm-systemtray
+    :ensure nil
+    :config (exwm-systemtray-enable))
+
   ;; Active exim
-  (require 'exim)
-  (add-hook 'exwm-init-hook 'exim-start))
+  (use-package exim
+    :ensure nil
+    :config (add-hook 'exwm-init-hook 'exim-start)))
 
 (provide 'eh-exwm)
 
