@@ -269,7 +269,7 @@
   ;; Auto Start
   (eh-exwm/run-shell-command "xset b off")
   (eh-exwm/run-shell-command "xmodmap -e 'keycode 135 = Super_R'")
-  (eh-exwm/run-shell-command "nm-applet &"))
+  (eh-exwm/run-shell-command "nm-applet"))
 
 (provide 'eh-exwm)
 
