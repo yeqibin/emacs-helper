@@ -264,7 +264,12 @@
   ;; Active exim
   (use-package exim
     :ensure nil
-    :config (add-hook 'exwm-init-hook 'exim-start)))
+    :config (add-hook 'exwm-init-hook 'exim-start))
+
+  ;; Auto Start
+  (eh-exwm/run-shell-command "xset b off")
+  (eh-exwm/run-shell-command "xmodmap -e 'keycode 135 = Super_R'")
+  (eh-exwm/run-shell-command "nm-applet &"))
 
 (provide 'eh-exwm)
 
