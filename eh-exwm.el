@@ -75,6 +75,32 @@
                           (string= "gimp" exwm-instance-name))
                   (exwm-workspace-rename-buffer (concat "Exwm:" exwm-title)))))
 
+  (defun exwm-generate-debian-menu-commands ()
+    (let ((file "/var/lib/emacs/exwm/exwm-menu.el")
+          debian-menu-alist)
+      (when (file-exists-p file)
+        (load file)
+        (setq debian-menu-alist
+              (when (boundp 'exwm-debian-menu-alist)
+                exwm-debian-menu-alist))
+        (dolist (debian-menu debian-menu-alist)
+          (let* ((debian-menu-command (nth 1 debian-menu))
+                 (debian-menu-name (nth 2 debian-menu))
+                 (exwm-command-name
+                  (concat "EXWM/"
+                          (replace-regexp-in-string
+                           "^-\\|-$" ""
+                           (replace-regexp-in-string
+                            "-+" "-"
+                            (replace-regexp-in-string
+                             "[^a-zA-Z0-9]" "-"
+                             (replace-regexp-in-string
+                              "/Debian\\|/Applications" ""
+                              debian-menu-name)))))))
+            (eval `(defun ,(intern exwm-command-name) ()
+                     (interactive)
+                     (start-process-shell-command ,exwm-command-name nil ,debian-menu-command))))))))
+
   (defun eh-exwm/run-shell-command (cmd)
     (start-process-shell-command cmd nil cmd))
 
@@ -141,20 +167,33 @@
     (interactive)
     (eh-exwm/run-shell-command "x-terminal-emulator -t default-terminal"))
 
-  (defun eh-exwm/launch-new-terminal ()
+  (defun eh-exwm/power-manager-settings ()
     (interactive)
-    (eh-exwm/run-shell-command "x-terminal-emulator"))
+    (eh-exwm/run-shell-command "xfce4-power-manager-settings"))
 
   (defun eh-exwm/power-manager ()
     (interactive)
-    (eh-exwm/run-shell-command "xfce4-power-manager-settings"))
+    (eh-exwm/run-shell-command "xfce4-power-manager"))
+
+  (defun eh-exwm/network-manager-applet ()
+    (interactive)
+    (eh-exwm/run-shell-command "nm-applet"))
+
+  (defun eh-exwm/volit ()
+    (interactive)
+    (eh-exwm/run-shell-command "volti"))
+
+  (defun eh-exwm/xscreensaver ()
+    (interactive)
+    (eh-exwm/run-shell-command "xscreensaver -no-splash &"))
 
   (defun eh-exwm/lock-screen ()
     (interactive)
     (eh-exwm/run-shell-command "exec xscreensaver-command -lock"))
 
   (defun eh-exwm/run-shell-command-interactively (command)
-    (interactive (list (read-shell-command "Run shell command: ")))
+    (interactive
+     (list (read-shell-command "Run shell command: ")))
     (start-process-shell-command command nil command))
 
   (defun eh-exwm/switch-to-1-workspace ()
@@ -173,15 +212,15 @@
     (interactive)
     (exwm-workspace-switch 3))
 
+  ;; Don't Delete the below two lines
   (global-unset-key (kbd "C-t"))
   (push ?\C-t exwm-input-prefix-keys)
 
   (exwm-input-set-key (kbd "C-t R")  nil)
   (exwm-input-set-key (kbd "C-t q")  nil)
+  (exwm-input-set-key (kbd "C-t m")  nil)
   (exwm-input-set-key (kbd "C-t v")  'eh-exwm/file-manager)
   (exwm-input-set-key (kbd "C-t c")  'eh-exwm/x-terminal-emulator)
-  (exwm-input-set-key (kbd "C-t m")  'eh-exwm/view-debian-menu)
-  (exwm-input-set-key (kbd "C-t ,")  'start-menu-popup)
   (exwm-input-set-key (kbd "C-t ff") 'eh-exwm/firefox)
   (exwm-input-set-key (kbd "C-t fq") 'eh-exwm/qq)
   (exwm-input-set-key (kbd "C-t fj") 'eh-exwm/jabref)
@@ -224,52 +263,29 @@
      ([?\M-v] . prior)
      ([?\C-v] . next)))
 
-  ;; Debian menu
-  (defun exwm-generate-debian-menu-commands ()
-    (let ((file "/var/lib/emacs/exwm/exwm-menu.el")
-          debian-menu-alist)
-      (when (file-exists-p file)
-        (load file)
-        (setq debian-menu-alist
-              (when (boundp 'exwm-debian-menu-alist)
-                exwm-debian-menu-alist))
-        (dolist (debian-menu debian-menu-alist)
-          (let* ((debian-menu-command (nth 1 debian-menu))
-                 (debian-menu-name (nth 2 debian-menu))
-                 (exwm-command-name
-                  (concat "EXWM/"
-                          (replace-regexp-in-string
-                           "^-\\|-$" ""
-                           (replace-regexp-in-string
-                            "-+" "-"
-                            (replace-regexp-in-string
-                             "[^a-zA-Z0-9]" "-"
-                             (replace-regexp-in-string
-                              "/Debian\\|/Applications" ""
-                              debian-menu-name)))))))
-            (eval `(defun ,(intern exwm-command-name) ()
-                     (interactive)
-                     (start-process-shell-command ,exwm-command-name nil ,debian-menu-command))))))))
-
+  ;; Generate debian menu
   (exwm-generate-debian-menu-commands)
 
-  ;; Do not forget to enable EXWM. It will start by itself when things are ready.
+  ;; Don't delete it
   (exwm-enable)
 
-  ;; Active systemtray
+  (use-package start-menu
+    :ensure nil
+    :config
+    (start-menu-enable)
+    (setq exwm-systemtray-height 16)
+    (exwm-input-set-key (kbd "C-t ,")  'start-menu-popup)
+    (add-hook 'exwm-init-hook 'eh-exwm/network-manager-applet t)
+    (add-hook 'exwm-init-hook 'eh-exwm/volit t)
+    (add-hook 'exwm-init-hook 'eh-exwm/power-manager t))
+
   (use-package exwm-systemtray
     :ensure nil
     :config (exwm-systemtray-enable))
 
-  ;; Active exim
   (use-package exim
     :ensure nil
-    :config (add-hook 'exwm-init-hook 'exim-start))
-
-  ;; Auto Start
-  (eh-exwm/run-shell-command "xset b off")
-  (eh-exwm/run-shell-command "xmodmap -e 'keycode 135 = Super_R'")
-  (eh-exwm/run-shell-command "nm-applet"))
+    :config (add-hook 'exwm-init-hook 'exim-start)))
 
 (provide 'eh-exwm)
 
