@@ -113,14 +113,11 @@
 ;;              '("\\*Async Shell Command\\*.*"  display-buffer-no-window nil))
 
 ;; Theme 设置
-(use-package custom
-  :ensure nil
+(use-package cyberpunk-theme
   :config
-  (add-to-list 'custom-theme-load-path
-               (file-name-directory
-                (locate-library "cyberpunk-theme.el")))
-  ;; (load-theme 'cyberpunk)
-  )
+  (add-hook 'after-init-hook
+            #'(lambda ()
+                (load-theme 'cyberpunk t))))
 
 ;; Charset 设置
 (use-package mule
