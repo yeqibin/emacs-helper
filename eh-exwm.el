@@ -101,7 +101,29 @@
                      (interactive)
                      (start-process-shell-command ,exwm-command-name nil ,debian-menu-command))))))))
 
+  (defun eh-exwm/jump-or-exec (regexp cmd)
+    "Jump to a window which buffer's name matched `regexp',
+if matched window can't be found, run shell command `cmd'"
+    (let* ((buffer
+            (car (delq nil (mapcar
+                            #'(lambda (buf)
+                                (when (string-match-p regexp (buffer-name buf))
+                                  buf))
+                            (buffer-list)))))
+           (buffer-window (when buffer
+                            (get-buffer-window buffer))))
+      (if buffer
+          (if buffer-window
+              (select-window buffer-window)
+            (switch-to-buffer buffer))
+        (start-process-shell-command cmd nil cmd))))
+
   (defun eh-exwm/run-shell-command (cmd)
+    (start-process-shell-command cmd nil cmd))
+
+  (defun eh-exwm/run-shell-command-interactively (cmd)
+    (interactive
+     (list (read-shell-command "Run shell command: ")))
     (start-process-shell-command cmd nil cmd))
 
   (defun eh-exwm/suspend-computer ()
@@ -121,18 +143,19 @@
 
   (defun eh-exwm/firefox ()
     (interactive)
-    (eh-exwm/run-shell-command "iceweasel"))
+    (eh-exwm/jump-or-exec "Iceweasel" "iceweasel"))
 
   (defun eh-exwm/file-manager ()
     (interactive)
-    (eh-exwm/run-shell-command "nautilus --no-desktop"))
+    (eh-exwm/jump-or-exec "Nautilus" "nautilus --no-desktop"))
 
   (defun eh-exwm/crossover ()
     (interactive)
-    (eh-exwm/run-shell-command "/opt/cxoffice/bin/crossover"))
+    (eh-exwm/jump-or-exec "Crossover" "/opt/cxoffice/bin/crossover"))
 
   (defun eh-exwm/launch-crossover-app (app bottle)
-    (eh-exwm/run-shell-command
+    (eh-exwm/jump-or-exec
+     app
      (format "/opt/cxoffice/bin/wine --bottle %s --cx-app '%s'" bottle app)))
 
   (defun eh-exwm/qq ()
@@ -153,19 +176,23 @@
 
   (defun eh-exwm/winxp ()
     (interactive)
-    (eh-exwm/run-shell-command "VBoxManage startvm winxp"))
+    (eh-exwm/jump-or-exec "VirtualBox" "VBoxManage startvm winxp"))
 
   (defun eh-exwm/mplayer ()
     (interactive)
-    (eh-exwm/run-shell-command "smplayer"))
+    (eh-exwm/jump-or-exec "Smplayer" "smplayer"))
 
   (defun eh-exwm/htop ()
     (interactive)
-    (eh-exwm/run-shell-command "x-terminal-emulator -t htop -e htop"))
+    (eh-exwm/jump-or-exec "htop" "x-terminal-emulator -t htop -e htop"))
 
   (defun eh-exwm/x-terminal-emulator ()
     (interactive)
-    (eh-exwm/run-shell-command "x-terminal-emulator -t default-terminal"))
+    (eh-exwm/jump-or-exec "default-terminal" "x-terminal-emulator -t default-terminal"))
+
+  (defun eh-exwm/launch-new-terminal ()
+    (interactive)
+    (eh-exwm/run-shell-command "x-terminal-emulator"))
 
   (defun eh-exwm/power-manager-settings ()
     (interactive)
@@ -190,11 +217,6 @@
   (defun eh-exwm/lock-screen ()
     (interactive)
     (eh-exwm/run-shell-command "exec xscreensaver-command -lock"))
-
-  (defun eh-exwm/run-shell-command-interactively (command)
-    (interactive
-     (list (read-shell-command "Run shell command: ")))
-    (start-process-shell-command command nil command))
 
   (defun eh-exwm/switch-to-1-workspace ()
     (interactive)
