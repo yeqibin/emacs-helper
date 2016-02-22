@@ -201,7 +201,8 @@
 (use-package ace-window
   :bind (("C-x o" . ace-window))
   :config
-  (setq aw-keys '(?a ?b ?c ?d ?e ?f ?g ?h ?i)))
+  (setq aw-keys '(?a ?b ?c ?d ?e ?f ?g ?h ?i))
+  (ace-window-display-mode))
 
 ;; switch window
 (use-package switch-window
