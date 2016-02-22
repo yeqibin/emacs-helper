@@ -68,6 +68,7 @@
                 (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
                             (string= "gimp" exwm-instance-name))
                   (exwm-workspace-rename-buffer (concat "Exwm:" exwm-class-name)))))
+
   (add-hook 'exwm-update-title-hook
             #'(lambda ()
                 (when (or (not exwm-instance-name)
