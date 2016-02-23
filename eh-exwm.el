@@ -10,7 +10,41 @@
 
 ;;; Commentary:
 
-;;  这个文件是tumashu个人专用的emacs配置文件，emacs中文用户可以参考。
+;; * Description
+;; Tumashu's exwm configure
+
+;; * Configure
+;; Create ~/.xinitrc file or ~/.xsession file which content likes
+;; the below example:
+
+;; #+BEGIN_EXAMPLE
+;; # You may need to comment out the next line to disable access control
+;; xhost +
+
+;; # Set themes, etc
+;; # gnome-settings-daemon &
+
+;; # Set fallback cursor
+;; # xsetroot -cursor_name left_ptr
+
+;; # Kill beep
+;; xset b off
+
+;; # Tell emacs load eh-exwm.el file
+;; export eh_enable_exwm="yes"
+
+;; # Emacs X input method (exim) setting
+;; export XMODIFIERS=@im=exim
+;; export GTK_IM_MODULE=xim
+;; export QT_IM_MODULE=xim
+;; export CLUTTER_IM_MODULE=xim
+;; #+END_EXAMPLE
+
+;; # Launch exwm
+;; exec dbus-launch --exit-with-session emacs
+
+;; * Run exwm
+;; Run startx command or login with display-manager
 
 ;;; License:
 
