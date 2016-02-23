@@ -411,15 +411,16 @@ If DIR is t, then move up, otherwise move down."
     :ensure nil
     :config
     (start-menu-enable)
-    (setq exwm-systemtray-height 16)
-    (exwm-input-set-key (kbd "C-t ,")  'start-menu-popup)
-    (add-hook 'exwm-init-hook 'eh-exwm/network-manager-applet t)
-    (add-hook 'exwm-init-hook 'eh-exwm/volit t)
-    (add-hook 'exwm-init-hook 'eh-exwm/power-manager t))
+    (exwm-input-set-key (kbd "C-t ,")  'start-menu-popup))
 
   (use-package exwm-systemtray
     :ensure nil
-    :config (exwm-systemtray-enable))
+    :config
+    (setq exwm-systemtray-height 16)
+    (exwm-systemtray-enable)
+    (add-hook 'exwm-init-hook 'eh-exwm/network-manager-applet t)
+    (add-hook 'exwm-init-hook 'eh-exwm/volit t)
+    (add-hook 'exwm-init-hook 'eh-exwm/power-manager t))
 
   (use-package exim
     :ensure nil
