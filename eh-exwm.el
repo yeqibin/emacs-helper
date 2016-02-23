@@ -379,7 +379,7 @@ If DIR is t, then move up, otherwise move down."
       (define-key m (kbd "C-n") 'eh-exwm/move-border-down)
       (define-key m (kbd "C-f") 'eh-exwm/move-border-right)
       (define-key m (kbd "C-b") 'eh-exwm/move-border-left)
-      (define-key m (kbd "C-c C-c") 'iresize-mode)
+      (define-key m (kbd "C-c C-c") 'eh-exwm/iresize-mode)
       m))
 
   (define-minor-mode eh-exwm/iresize-mode
