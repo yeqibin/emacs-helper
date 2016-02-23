@@ -103,7 +103,7 @@ this command must work with `eh-exwm/rename-buffer'."
            buffers-matched-title
            buffers-matched-instance
            buffers-matched-class
-           buffers-alist buffer buffer-window)
+           buffers-alist buffer)
 
       (dolist (buffer buffers)
         (let* ((buffer-name (buffer-name buffer))
@@ -126,14 +126,8 @@ this command must work with `eh-exwm/rename-buffer'."
             (car (car (cdr (car (sort buffers-alist
                                       #'(lambda (a b)
                                           (< (car a) (car b)))))))))
-      (setq buffer-window
-            (when buffer
-              (get-buffer-window buffer)))
-
       (if buffer
-          (if buffer-window
-              (select-window buffer-window)
-            (switch-to-buffer buffer))
+          (switch-to-buffer buffer)
         (start-process-shell-command cmd nil cmd))))
 
   (defun eh-exwm/run-shell-command (cmd)
