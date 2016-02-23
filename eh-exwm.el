@@ -399,6 +399,14 @@ If DIR is t, then move up, otherwise move down."
   ;; Don't delete it
   (exwm-enable)
 
+  (use-package windmove
+    :ensure nil
+    :config
+    (exwm-input-set-key (kbd "C-<up>") 'windmove-up)
+    (exwm-input-set-key (kbd "C-<down>") 'windmove-down)
+    (exwm-input-set-key (kbd "C-<left>") 'windmove-left)
+    (exwm-input-set-key (kbd "C-<right>") 'windmove-right))
+
   (use-package start-menu
     :ensure nil
     :config
