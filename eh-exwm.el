@@ -50,31 +50,65 @@
 
   ;; All buffers created in EXWM mode are named "*EXWM*". You may want to change
   ;; it in `exwm-update-class-hook' and `exwm-update-title-hook', which are run
-  ;; when a new window class name or title is available. Here's some advice on
-  ;; this subject:
-  ;; + Always set the second argument of `rename-buffer' to `t' to avoid naming
-  ;;   conflict.
-  ;; + Only renaming buffer in one hook and avoid it in the other. There's no
-  ;;   guarantee on the order in which they are run.
-  ;; + For applications with multiple windows (e.g. GIMP), the class names of all
-  ;;   windows are probably the same. Using window titles for them makes more
-  ;;   sense.
-  ;; + Some application change its title frequently (e.g. browser, terminal).
-  ;;   Its class name may be more suitable for such case.
-  ;; In the following example, we use class names for all windows expect for
-  ;; Java applications and GIMP.
-  (add-hook 'exwm-update-class-hook
-            #'(lambda ()
-                (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
-                            (string= "gimp" exwm-instance-name))
-                  (exwm-workspace-rename-buffer (concat "Exwm:" exwm-class-name)))))
+  ;; when a new window class name or title is available.
+  (add-hook 'exwm-update-class-hook #'eh-exwm/rename-buffer)
+  (add-hook 'exwm-update-title-hook #'eh-exwm/rename-buffer)
 
-  (add-hook 'exwm-update-title-hook
-            #'(lambda ()
-                (when (or (not exwm-instance-name)
-                          (string-prefix-p "sun-awt-X11-" exwm-instance-name)
-                          (string= "gimp" exwm-instance-name))
-                  (exwm-workspace-rename-buffer (concat "Exwm:" exwm-title)))))
+  (defun eh-exwm/rename-buffer ()
+    (exwm-workspace-rename-buffer
+     (format "EXWM@%s@%s@%s"
+             (or exwm-title "")
+             (or exwm-instance-name "")
+             (or exwm-class-name ""))))
+
+  (defun eh-exwm/jump-or-exec (regexp cmd)
+    "Jump to a window which buffer's name matched `regexp',
+if matched window can't be found, run shell command `cmd',
+this command must work with `eh-exwm/rename-buffer'."
+    (let* ((buffers (buffer-list))
+           buffers-matched-title
+           buffers-matched-instance
+           buffers-matched-class
+           buffers-alist buffer buffer-window)
+
+      (dolist (buffer buffers)
+        (let* ((buffer-name (buffer-name buffer))
+               (list (split-string buffer-name "@")))
+          (when (string-match-p regexp buffer-name)
+            (when (string-match-p regexp (nth 1 list))
+              (push buffer buffers-matched-title))
+            (when (string-match-p regexp (nth 2 list))
+              (push buffer buffers-matched-instance))
+            (when (string-match-p regexp (nth 3 list))
+              (push buffer buffers-matched-class)))))
+
+      (dolist (x (list buffers-matched-class
+                       buffers-matched-instance
+                       buffers-matched-title))
+        (when x
+          (push (list (length x) x) buffers-alist)))
+
+      (setq buffer
+            (car (car (cdr (car (sort buffers-alist
+                                      #'(lambda (a b)
+                                          (< (car a) (car b)))))))))
+      (setq buffer-window
+            (when buffer
+              (get-buffer-window buffer)))
+
+      (if buffer
+          (if buffer-window
+              (select-window buffer-window)
+            (switch-to-buffer buffer))
+        (start-process-shell-command cmd nil cmd))))
+
+  (defun eh-exwm/run-shell-command (cmd)
+    (start-process-shell-command cmd nil cmd))
+
+  (defun eh-exwm/run-shell-command-interactively (cmd)
+    (interactive
+     (list (read-shell-command "Run shell command: ")))
+    (start-process-shell-command cmd nil cmd))
 
   (defun exwm-generate-debian-menu-commands ()
     (let ((file "/var/lib/emacs/exwm/exwm-menu.el")
@@ -101,31 +135,6 @@
             (eval `(defun ,(intern exwm-command-name) ()
                      (interactive)
                      (start-process-shell-command ,exwm-command-name nil ,debian-menu-command))))))))
-
-  (defun eh-exwm/jump-or-exec (regexp cmd)
-    "Jump to a window which buffer's name matched `regexp',
-if matched window can't be found, run shell command `cmd'"
-    (let* ((buffer
-            (car (delq nil (mapcar
-                            #'(lambda (buf)
-                                (when (string-match-p regexp (buffer-name buf))
-                                  buf))
-                            (buffer-list)))))
-           (buffer-window (when buffer
-                            (get-buffer-window buffer))))
-      (if buffer
-          (if buffer-window
-              (select-window buffer-window)
-            (switch-to-buffer buffer))
-        (start-process-shell-command cmd nil cmd))))
-
-  (defun eh-exwm/run-shell-command (cmd)
-    (start-process-shell-command cmd nil cmd))
-
-  (defun eh-exwm/run-shell-command-interactively (cmd)
-    (interactive
-     (list (read-shell-command "Run shell command: ")))
-    (start-process-shell-command cmd nil cmd))
 
   (defun eh-exwm/suspend-computer ()
     (interactive)
@@ -185,11 +194,11 @@ if matched window can't be found, run shell command `cmd'"
 
   (defun eh-exwm/htop ()
     (interactive)
-    (eh-exwm/jump-or-exec "htop" "x-terminal-emulator -t htop -e htop"))
+    (eh-exwm/jump-or-exec "htop" "x-terminal-emulator -T htop -t htop -e htop"))
 
   (defun eh-exwm/x-terminal-emulator ()
     (interactive)
-    (eh-exwm/jump-or-exec "default-terminal" "x-terminal-emulator -t default-terminal"))
+    (eh-exwm/jump-or-exec "default-terminal" "x-terminal-emulator -T default-terminal -t default-terminal"))
 
   (defun eh-exwm/launch-new-terminal ()
     (interactive)
