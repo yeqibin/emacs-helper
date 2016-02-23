@@ -330,6 +330,69 @@ this command must work with `eh-exwm/rename-buffer'."
      ([?\M-v] . prior)
      ([?\C-v] . next)))
 
+  ;; Resize window
+  (defun eh-exwm/xor (b1 b2)
+    (or (and b1 b2)
+        (and (not b1) (not b2))))
+
+  (defun eh-exwm/move-border-left-or-right (arg dir)
+    "General function covering eh-exwm/move-border-left and eh-exwm/move-border-right.
+If DIR is t, then move left, otherwise move right."
+    (interactive)
+    (when (null arg)
+      (setq arg 3))
+    (let ((left-edge (nth 0 (window-edges))))
+      (if (eh-exwm/xor (= left-edge 0) dir)
+          (shrink-window arg t)
+        (enlarge-window arg t))))
+
+  (defun eh-exwm/move-border-up-or-down (arg dir)
+    "General function covering eh-exwm/move-border-up and eh-exwm/move-border-down.
+If DIR is t, then move up, otherwise move down."
+    (interactive)
+    (when (null arg)
+      (setq arg 3))
+    (let ((top-edge (nth 1 (window-edges))))
+      (if (eh-exwm/xor (= top-edge 0) dir)
+          (shrink-window arg nil)
+        (enlarge-window arg nil))))
+
+  (defun eh-exwm/move-border-left (arg)
+    (interactive "P")
+    (eh-exwm/move-border-left-or-right arg t))
+
+  (defun eh-exwm/move-border-right (arg)
+    (interactive "P")
+    (eh-exwm/move-border-left-or-right arg nil))
+
+  (defun eh-exwm/move-border-up (arg)
+    (interactive "P")
+    (eh-exwm/move-border-up-or-down arg t))
+
+  (defun eh-exwm/move-border-down (arg)
+    (interactive "P")
+    (eh-exwm/move-border-up-or-down arg nil))
+
+  (defvar eh-exwm/iresize-mode-map
+    (let ((m (make-sparse-keymap)))
+      (define-key m (kbd "C-p") 'eh-exwm/move-border-up)
+      (define-key m (kbd "C-n") 'eh-exwm/move-border-down)
+      (define-key m (kbd "C-f") 'eh-exwm/move-border-right)
+      (define-key m (kbd "C-b") 'eh-exwm/move-border-left)
+      (define-key m (kbd "C-c C-c") 'iresize-mode)
+      m))
+
+  (define-minor-mode eh-exwm/iresize-mode
+    :initial-value nil
+    :lighter " Exwm-iresize"
+    :keymap eh-exwm/iresize-mode-map
+    :group 'eh-exwm/iresize)
+
+  (exwm-input-set-key (kbd "C-S-<up>") 'eh-exwm/move-border-up)
+  (exwm-input-set-key (kbd "C-S-<down>") 'eh-exwm/move-border-down)
+  (exwm-input-set-key (kbd "C-S-<left>") 'eh-exwm/move-border-left)
+  (exwm-input-set-key (kbd "C-S-<right>") 'eh-exwm/move-border-right)
+
   ;; Generate debian menu
   (exwm-generate-debian-menu-commands)
 
