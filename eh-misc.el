@@ -199,6 +199,7 @@
   (bind-key "C-j" 'ace-jump-mode))
 
 (use-package ace-window
+  :disabled t
   :bind (("C-x o" . ace-window))
   :config
   (setq aw-keys '(?a ?b ?c ?d ?e ?f ?g ?h ?i))
@@ -206,12 +207,11 @@
 
 ;; switch window
 (use-package switch-window
-  :disabled t
   :bind (("C-x o" . switch-window)
          ("C-x 1" . eh-delete-other-windows))
   :config
   (setq switch-window-increase 8)
-  (setq  switch-window-shortcut-style 'qwerty)
+  (setq switch-window-shortcut-style 'qwerty)
 
   (defun eh-switch-window-display-number (win num)
     "prepare a temp buffer to diplay in the window while choosing"
