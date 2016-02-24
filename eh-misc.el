@@ -208,47 +208,10 @@
 ;; switch window
 (use-package switch-window
   :bind (("C-x o" . switch-window)
-         ("C-x 1" . eh-delete-other-windows))
+         ("C-x 1" . switch-window-then-maximize))
   :config
   (setq switch-window-increase 8)
-  (setq switch-window-shortcut-style 'qwerty)
-
-  (defun eh-switch-window-display-number (win num)
-    "prepare a temp buffer to diplay in the window while choosing"
-    (let* ((label (switch-window-label num))
-           (buf (get-buffer-create
-                 (format " *%s: %s*" label (buffer-name (window-buffer win))))))
-      (with-current-buffer buf
-        ;; hide cursor
-        (setq cursor-type nil)
-        ;; increase to maximum switch-window-increase
-        (when (fboundp 'text-scale-increase)
-          (text-scale-increase switch-window-increase))
-        ;; insert the label, with a hack to support ancient emacs
-        (if (fboundp 'text-scale-increase)
-            (insert label)
-          (insert (propertize label 'face
-                              (list :height (* (* h switch-window-increase)
-                                               (if (> w h) 2 1)))))))
-      (set-window-buffer win buf)
-      buf))
-
-  (defun eh-delete-other-windows ()
-    "Display an overlay in each window showing a unique key, then
-ask user for the window where move to and delete other windows"
-    (interactive)
-    (if (<= (length (window-list)) switch-window-threshold)
-        (call-interactively 'delete-other-windows)
-      (progn
-        (let ((index (prompt-for-selected-window "Move to window: "))
-              (eobps (switch-window-list-eobp)))
-          (apply-to-window-index
-           'select-window index "Moved to %S and delete other windows")
-          (switch-window-restore-eobp eobps))
-        (delete-other-windows))))
-
-  (advice-add 'switch-window-display-number
-              :override #'eh-switch-window-display-number))
+  (setq switch-window-shortcut-style 'qwerty))
 
 ;; expand-region
 (use-package expand-region
