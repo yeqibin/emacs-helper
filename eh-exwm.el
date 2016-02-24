@@ -38,10 +38,11 @@
 ;; export GTK_IM_MODULE=xim
 ;; export QT_IM_MODULE=xim
 ;; export CLUTTER_IM_MODULE=xim
-;; #+END_EXAMPLE
 
 ;; # Launch exwm
 ;; exec dbus-launch --exit-with-session emacs
+
+;; #+END_EXAMPLE
 
 ;; * Run exwm
 ;; Run startx command or login with display-manager
@@ -83,8 +84,8 @@
   (setq use-dialog-box nil)
 
   ;; All buffers created in EXWM mode are named "*EXWM*". You may want to change
-  ;; it in `exwm-update-class-hook' and `exwm-update-title-hook', which are run
   ;; when a new window class name or title is available.
+  ;; it in `exwm-update-class-hook' and `exwm-update-title-hook', which are run
   (add-hook 'exwm-update-class-hook #'eh-exwm/rename-buffer)
   (add-hook 'exwm-update-title-hook #'eh-exwm/rename-buffer)
 
@@ -127,7 +128,7 @@ this command must work with `eh-exwm/rename-buffer'."
                                       #'(lambda (a b)
                                           (< (car a) (car b)))))))))
       (if buffer
-          (switch-to-buffer buffer)
+          (exwm-workspace-switch-to-buffer buffer)
         (start-process-shell-command cmd nil cmd))))
 
   (defun eh-exwm/run-shell-command (cmd)
