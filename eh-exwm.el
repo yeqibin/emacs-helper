@@ -86,47 +86,49 @@
   ;; All buffers created in EXWM mode are named "*EXWM*". You may want to change
   ;; when a new window class name or title is available.
   ;; it in `exwm-update-class-hook' and `exwm-update-title-hook', which are run
-  (add-hook 'exwm-update-class-hook #'eh-exwm/rename-buffer)
-  (add-hook 'exwm-update-title-hook #'eh-exwm/rename-buffer)
+  (add-hook 'exwm-update-class-hook
+            #'(lambda ()
+                (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
+                            (string= "gimp" exwm-instance-name))
+                  (exwm-workspace-rename-buffer (concat "Exwm:" exwm-class-name)))))
 
-  (defun eh-exwm/rename-buffer ()
-    (exwm-workspace-rename-buffer
-     (format "EXWM@%s@%s@%s"
-             (or exwm-title "")
-             (or exwm-instance-name "")
-             (or exwm-class-name ""))))
+  (add-hook 'exwm-update-title-hook
+            #'(lambda ()
+                (when (or (not exwm-instance-name)
+                          (string-prefix-p "sun-awt-X11-" exwm-instance-name)
+                          (string= "gimp" exwm-instance-name))
+                  (exwm-workspace-rename-buffer (concat "Exwm:" exwm-title)))))
+
+  (defun eh-exwm/string-match-p (regexp string)
+    (and (stringp regexp)
+         (stringp string)
+         (string-match-p regexp string)))
 
   (defun eh-exwm/jump-or-exec (regexp cmd)
-    "Jump to a window which buffer's name matched `regexp',
-if matched window can't be found, run shell command `cmd',
-this command must work with `eh-exwm/rename-buffer'."
+    "Jump to a window which class, instance or title matched `regexp',
+if matched window can't be found, run shell command `cmd'."
     (let* ((buffers (buffer-list))
-           buffers-matched-title
-           buffers-matched-instance
-           buffers-matched-class
-           buffers-alist buffer)
+           (buffers-list (list nil nil nil))
+           buffer)
 
       (dolist (buffer buffers)
-        (let* ((buffer-name (buffer-name buffer))
-               (list (split-string buffer-name "@")))
-          (when (string-match-p regexp buffer-name)
-            (when (string-match-p regexp (nth 1 list))
-              (push buffer buffers-matched-title))
-            (when (string-match-p regexp (nth 2 list))
-              (push buffer buffers-matched-instance))
-            (when (string-match-p regexp (nth 3 list))
-              (push buffer buffers-matched-class)))))
-
-      (dolist (x (list buffers-matched-class
-                       buffers-matched-instance
-                       buffers-matched-title))
-        (when x
-          (push (list (length x) x) buffers-alist)))
+        (let ((wininfo `((0 . ,(buffer-local-value 'exwm-title buffer))
+                         (1 . ,(buffer-local-value 'exwm-instance-name buffer))
+                         (2 . ,(buffer-local-value 'exwm-class-name buffer)))))
+          (dolist (x wininfo)
+            (when (eh-exwm/string-match-p regexp (cdr x))
+              (setf (nth (car x) buffers-list)
+                    (append (list buffer) (nth (car x) buffers-list)))))))
 
       (setq buffer
-            (car (car (cdr (car (sort buffers-alist
-                                      #'(lambda (a b)
-                                          (< (car a) (car b)))))))))
+            (caar (delq nil
+                        (sort buffers-list
+                              #'(lambda (a b)
+                                  (< (length a) (length b)))))))
+      (when (featurep 'switch-window)
+        (switch-window--then
+         "Move to: " #'other-window nil 1 nil t))
+
       (if buffer
           (exwm-workspace-switch-to-buffer buffer)
         (start-process-shell-command cmd nil cmd))))
@@ -223,15 +225,15 @@ this command must work with `eh-exwm/rename-buffer'."
 
   (defun eh-exwm/htop ()
     (interactive)
-    (eh-exwm/jump-or-exec "htop" "x-terminal-emulator -T htop -t htop -e htop"))
+    (eh-exwm/jump-or-exec "htop" "xfce4-terminal -T htop -e htop"))
 
   (defun eh-exwm/x-terminal-emulator ()
     (interactive)
-    (eh-exwm/jump-or-exec "default-terminal" "x-terminal-emulator -T default-terminal -t default-terminal"))
+    (eh-exwm/jump-or-exec "default-terminal" "xfce4-terminal -T default-terminal"))
 
   (defun eh-exwm/launch-new-terminal ()
     (interactive)
-    (eh-exwm/run-shell-command "x-terminal-emulator"))
+    (eh-exwm/run-shell-command "xfce4-terminal"))
 
   (defun eh-exwm/power-manager-settings ()
     (interactive)
