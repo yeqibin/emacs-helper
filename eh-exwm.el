@@ -99,9 +99,7 @@
                           (string= "gimp" exwm-instance-name))
                   (exwm-workspace-rename-buffer (concat "Exwm:" exwm-title)))))
 
-  (defun eh-exwm/create-mode-line-button (string &optional buffer-or-name
-                                                 alternative-mouse-1-action
-                                                 alternative-mouse-2-action)
+  (defun eh-exwm/create-mode-line-button (string mouse-1-action mouse-2-action)
     "Create clickable button's code which is used by mode-line-format."
     `(:eval (propertize
              ,string
@@ -113,18 +111,12 @@
                  #'(lambda (event)
                      (interactive "e")
                      (with-selected-window (posn-window (event-start event))
-                       (if (and ,buffer-or-name
-                                (get-buffer ,buffer-or-name))
-                           (switch-to-buffer ,buffer-or-name)
-                         ,alternative-mouse-1-action))))
+                       ,mouse-1-action)))
                (define-key map [mode-line mouse-3]
                  #'(lambda (event)
                      (interactive "e")
                      (with-selected-window (posn-window (event-start event))
-                       (if (and ,buffer-or-name
-                                (get-buffer ,buffer-or-name))
-                           (kill-buffer ,buffer-or-name)
-                         ,alternative-mouse-2-action))))
+                       ,mouse-2-action)))
                map))))
 
   (defvar eh-exwm/mode-line-buttons-list nil)
@@ -148,10 +140,11 @@
                         #'(lambda (a b)
                             (< (length a) (length b))))))))
 
-  (defun eh-exwm/jump-or-exec (regexp cmd)
+  (defun eh-exwm/jump-or-exec (regexp cmd &optional current-window)
     "Jump to a window which class, instance or title matched `regexp',
 if matched window can't be found, run shell command `cmd'."
-    (when (featurep 'switch-window)
+    (when (and (not current-window)
+               (featurep 'switch-window))
       (switch-window--then
        "Move to window: "
        #'(lambda () (other-window 1))
@@ -164,15 +157,16 @@ if matched window can't be found, run shell command `cmd'."
 
     (let ((buffer (eh-exwm/find-xwindow-buffer regexp)))
       (push (eh-exwm/create-mode-line-button
-             (format "[%s] " regexp) (buffer-name buffer))
+             (format "[%s] " regexp)
+             `(eh-exwm/jump-or-exec ,regexp ,cmd t)
+             '(kill-buffer buffer))
             eh-exwm/mode-line-buttons-list)
       (setq eh-exwm/mode-line-buttons-list
             (cl-delete-duplicates
              eh-exwm/mode-line-buttons-list
              :test #'(lambda (x y)
                        (equal (nth 1 (cadr x))
-                              (nth 1 (cadr y))))
-             :from-end t))
+                              (nth 1 (cadr y))))))
       (eh-exwm/update-mode-line)))
 
   (defun eh-exwm/string-match-p (regexp string)
@@ -185,21 +179,22 @@ if matched window can't be found, run shell command `cmd'."
       (with-current-buffer buffer
         (when (eq major-mode 'exwm-mode)
           (setq mode-line-format
-                (or `(,(eh-exwm/create-mode-line-button
-                        "[X]" nil '(kill-buffer) '(kill-buffer))
+                (or `("EXWM -"
                       ,(eh-exwm/create-mode-line-button
-                        "[F]" nil '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
+                        "[X]" '(kill-buffer) '(kill-buffer))
                       ,(eh-exwm/create-mode-line-button
-                        "[_]" nil '(exwm-floating-hide) '(exwm-floating-hide))
-                      "---"
+                        "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
+                      ,(eh-exwm/create-mode-line-button
+                        "[_]" '(exwm-floating-hide) '(exwm-floating-hide))
+                      "- "
                       ,@eh-exwm/mode-line-buttons-list)
                     (default-value 'mode-line-format))))))
     (force-mode-line-update))
 
   (defun eh-exwm/run-shell-command (cmd)
     (start-process-shell-command cmd nil cmd))
-
   (defun eh-exwm/run-shell-command-interactively (cmd)
+
     (interactive
      (list (read-shell-command "Run shell command: ")))
     (start-process-shell-command cmd nil cmd))
