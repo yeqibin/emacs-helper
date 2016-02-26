@@ -127,7 +127,9 @@ if matched window can't be found, run shell command `cmd'."
                                   (< (length a) (length b)))))))
       (when (featurep 'switch-window)
         (switch-window--then
-         "Move to: " #'other-window nil 1 nil t))
+         "Move to window: "
+         #'(lambda () (other-window 1))
+         nil nil 1))
 
       (if buffer
           (exwm-workspace-switch-to-buffer buffer)
