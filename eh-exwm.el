@@ -166,8 +166,7 @@ if matched window can't be found, run shell command `cmd'."
              eh-exwm/mode-line-buttons-list
              :test #'(lambda (x y)
                        (equal (nth 1 (cadr x))
-                              (nth 1 (cadr y))))))
-      (eh-exwm/update-mode-line)))
+                              (nth 1 (cadr y))))))))
 
   (defun eh-exwm/string-match-p (regexp string)
     (and (stringp regexp)
@@ -190,6 +189,8 @@ if matched window can't be found, run shell command `cmd'."
                       ,@eh-exwm/mode-line-buttons-list)
                     (default-value 'mode-line-format))))))
     (force-mode-line-update))
+
+  (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-mode-line)
 
   (defun eh-exwm/run-shell-command (cmd)
     (start-process-shell-command cmd nil cmd))
