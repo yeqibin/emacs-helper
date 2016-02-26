@@ -196,11 +196,13 @@ if matched window can't be found, run shell command `cmd'."
       (setq eh-exwm/mode-line-active-p t)
       (force-mode-line-update)))
 
+  (setq-default mode-line-format
+                `(,(eh-exwm/create-mode-line-button
+                    "[EXWM]" '(eh-exwm/apps-mode-line-enable) '(eh-exwm/apps-mode-line-enable))
+                  ,(default-value 'mode-line-format)))
+
   (defun eh-exwm/emacs-mode-line-enable ()
-    (setq mode-line-format
-          `(,(eh-exwm/create-mode-line-button
-              "[EXWM]" '(eh-exwm/apps-mode-line-enable) '(eh-exwm/apps-mode-line-enable))
-            ,(default-value 'mode-line-format)))
+    (setq mode-line-format (default-value 'mode-line-format))
     (setq eh-exwm/apps-mode-line-active-p nil)
     (force-mode-line-update))
 
@@ -213,7 +215,6 @@ if matched window can't be found, run shell command `cmd'."
           (eh-exwm/emacs-mode-line-enable)))))
 
   (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-mode-line)
-  (add-hook 'emacs-startup-hook #'eh-exwm/emacs-mode-line-enable)
 
   (defun eh-exwm/run-shell-command (cmd)
     (start-process-shell-command cmd nil cmd))
