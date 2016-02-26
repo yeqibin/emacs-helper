@@ -159,41 +159,65 @@ if matched window can't be found, run shell command `cmd'."
       (push (eh-exwm/create-mode-line-button
              (format "[%s] " regexp)
              `(eh-exwm/jump-or-exec ,regexp ,cmd t)
-             '(kill-buffer buffer))
-            eh-exwm/mode-line-buttons-list)
-      (setq eh-exwm/mode-line-buttons-list
-            (cl-delete-duplicates
-             eh-exwm/mode-line-buttons-list
-             :test #'(lambda (x y)
-                       (equal (nth 1 (cadr x))
-                              (nth 1 (cadr y))))))))
+             `(kill-buffer ,buffer))
+            eh-exwm/mode-line-buttons-list)))
 
   (defun eh-exwm/string-match-p (regexp string)
     (and (stringp regexp)
          (stringp string)
          (string-match-p regexp string)))
 
-  (defun eh-exwm/update-mode-line ()
-    (dolist (buffer (buffer-list))
-      (with-current-buffer buffer
-        (when (eq major-mode 'exwm-mode)
-          (setq mode-line-format
-                (or `("EXWM -"
-                      ,(eh-exwm/create-mode-line-button
-                        "[X]" '(kill-buffer) '(kill-buffer))
-                      ,(eh-exwm/create-mode-line-button
-                        "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
-                      ,(eh-exwm/create-mode-line-button
-                        "[_]" '(exwm-floating-hide) '(exwm-floating-hide))
-                      "- "
-                      ,@eh-exwm/mode-line-buttons-list)
-                    (default-value 'mode-line-format))))))
+  (defvar eh-exwm/apps-mode-line-active-p nil)
+
+  (defun eh-exwm/apps-mode-line-enable ()
+    (let ((buttons (cl-delete-duplicates
+                    eh-exwm/mode-line-buttons-list
+                    :test #'(lambda (x y)
+                              (equal (nth 1 (cadr x))
+                                     (nth 1 (cadr y)))))))
+      (setq mode-line-format
+            `(,(eh-exwm/create-mode-line-button
+                "[EXWM]" '(eh-exwm/emacs-mode-line-enable) '(eh-exwm/emacs-mode-line-enable))
+              "-"
+              ,(eh-exwm/create-mode-line-button
+                "[X]" '(kill-buffer) '(kill-buffer))
+              ,(eh-exwm/create-mode-line-button
+                "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
+              ,(eh-exwm/create-mode-line-button
+                "[_]" '(exwm-floating-hide) '(exwm-floating-hide))
+              ,(eh-exwm/create-mode-line-button
+                "[+]" '(delete-other-windows) '(delete-other-windows))
+              ,(eh-exwm/create-mode-line-button
+                "[-]" '(split-window-below) '(split-window-below))
+              ,(eh-exwm/create-mode-line-button
+                "[|]" '(split-window-right) '(split-window-right))
+              "- "
+              ,@buttons))
+      (setq eh-exwm/mode-line-active-p t)
+      (force-mode-line-update)))
+
+  (defun eh-exwm/emacs-mode-line-enable ()
+    (setq mode-line-format
+          `(,(eh-exwm/create-mode-line-button
+              "[EXWM]" '(eh-exwm/apps-mode-line-enable) '(eh-exwm/apps-mode-line-enable))
+            ,(default-value 'mode-line-format)))
+    (setq eh-exwm/apps-mode-line-active-p nil)
     (force-mode-line-update))
 
+  (defun eh-exwm/update-mode-line ()
+    (interactive)
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (if (eq major-mode 'exwm-mode)
+            (eh-exwm/apps-mode-line-enable)
+          (eh-exwm/emacs-mode-line-enable)))))
+
   (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-mode-line)
+  (add-hook 'emacs-startup-hook #'eh-exwm/emacs-mode-line-enable)
 
   (defun eh-exwm/run-shell-command (cmd)
     (start-process-shell-command cmd nil cmd))
+
   (defun eh-exwm/run-shell-command-interactively (cmd)
 
     (interactive
