@@ -99,17 +99,40 @@
                           (string= "gimp" exwm-instance-name))
                   (exwm-workspace-rename-buffer (concat "Exwm:" exwm-title)))))
 
-  (defun eh-exwm/string-match-p (regexp string)
-    (and (stringp regexp)
-         (stringp string)
-         (string-match-p regexp string)))
+  (defun eh-exwm/create-mode-line-button (string &optional buffer-or-name
+                                                 alternative-mouse-1-action
+                                                 alternative-mouse-2-action)
+    "Create clickable button's code which is used by mode-line-format."
+    `(:eval (propertize
+             ,string
+             'face 'mode-line-buffer-id
+             'mouse-face 'mode-line-highlight
+             'local-map
+             (let ((map (make-sparse-keymap)))
+               (define-key map [mode-line mouse-1]
+                 #'(lambda (event)
+                     (interactive "e")
+                     (with-selected-window (posn-window (event-start event))
+                       (if (and ,buffer-or-name
+                                (get-buffer ,buffer-or-name))
+                           (switch-to-buffer ,buffer-or-name)
+                         ,alternative-mouse-1-action))))
+               (define-key map [mode-line mouse-3]
+                 #'(lambda (event)
+                     (interactive "e")
+                     (with-selected-window (posn-window (event-start event))
+                       (if (and ,buffer-or-name
+                                (get-buffer ,buffer-or-name))
+                           (kill-buffer ,buffer-or-name)
+                         ,alternative-mouse-2-action))))
+               map))))
 
-  (defun eh-exwm/jump-or-exec (regexp cmd)
-    "Jump to a window which class, instance or title matched `regexp',
-if matched window can't be found, run shell command `cmd'."
+  (defvar eh-exwm/mode-line-buttons-list nil)
+
+  (defun eh-exwm/find-xwindow-buffer (regexp)
+    "Find a buffer of xwindow which class, install or title is matched `regexp'."
     (let* ((buffers (buffer-list))
-           (buffers-list (list nil nil nil))
-           buffer)
+           (buffers-list (list nil nil nil)))
 
       (dolist (buffer buffers)
         (let ((wininfo `((0 . ,(buffer-local-value 'exwm-title buffer))
@@ -120,20 +143,58 @@ if matched window can't be found, run shell command `cmd'."
               (setf (nth (car x) buffers-list)
                     (append (list buffer) (nth (car x) buffers-list)))))))
 
-      (setq buffer
-            (caar (delq nil
-                        (sort buffers-list
-                              #'(lambda (a b)
-                                  (< (length a) (length b)))))))
-      (when (featurep 'switch-window)
-        (switch-window--then
-         "Move to window: "
-         #'(lambda () (other-window 1))
-         nil nil 1))
+      (caar (delq nil
+                  (sort buffers-list
+                        #'(lambda (a b)
+                            (< (length a) (length b))))))))
 
+  (defun eh-exwm/jump-or-exec (regexp cmd)
+    "Jump to a window which class, instance or title matched `regexp',
+if matched window can't be found, run shell command `cmd'."
+    (when (featurep 'switch-window)
+      (switch-window--then
+       "Move to window: "
+       #'(lambda () (other-window 1))
+       nil nil 1))
+
+    (let ((buffer (eh-exwm/find-xwindow-buffer regexp)))
       (if buffer
           (exwm-workspace-switch-to-buffer buffer)
-        (start-process-shell-command cmd nil cmd))))
+        (start-process-shell-command cmd nil cmd)))
+
+    (let ((buffer (eh-exwm/find-xwindow-buffer regexp)))
+      (push (eh-exwm/create-mode-line-button
+             (format "[%s] " regexp) (buffer-name buffer))
+            eh-exwm/mode-line-buttons-list)
+      (setq eh-exwm/mode-line-buttons-list
+            (cl-delete-duplicates
+             eh-exwm/mode-line-buttons-list
+             :test #'(lambda (x y)
+                       (equal (nth 1 (cadr x))
+                              (nth 1 (cadr y))))
+             :from-end t))
+      (eh-exwm/update-mode-line)))
+
+  (defun eh-exwm/string-match-p (regexp string)
+    (and (stringp regexp)
+         (stringp string)
+         (string-match-p regexp string)))
+
+  (defun eh-exwm/update-mode-line ()
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (eq major-mode 'exwm-mode)
+          (setq mode-line-format
+                (or `(,(eh-exwm/create-mode-line-button
+                        "[X]" nil '(kill-buffer) '(kill-buffer))
+                      ,(eh-exwm/create-mode-line-button
+                        "[F]" nil '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
+                      ,(eh-exwm/create-mode-line-button
+                        "[_]" nil '(exwm-floating-hide) '(exwm-floating-hide))
+                      "---"
+                      ,@eh-exwm/mode-line-buttons-list)
+                    (default-value 'mode-line-format))))))
+    (force-mode-line-update))
 
   (defun eh-exwm/run-shell-command (cmd)
     (start-process-shell-command cmd nil cmd))
