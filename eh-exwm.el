@@ -84,8 +84,8 @@
   (setq use-dialog-box nil)
 
   ;; eh-exwm own variables
-  (defvar eh-exwm/mode-line-buttons nil)
-  (defvar eh-exwm/apps-mode-line-active-p nil)
+  (defvar eh-exwm/mode-line-shortcuts nil)
+  (defvar eh-exwm/mode-line-active-p nil)
 
   ;; All buffers created in EXWM mode are named "*EXWM*". You may want to change
   ;; when a new window class name or title is available.
@@ -103,8 +103,8 @@
                           (string= "gimp" exwm-instance-name))
                   (exwm-workspace-rename-buffer (concat "Exwm:" exwm-title)))))
 
-  (defun eh-exwm/create-mode-line-button (string mouse-1-action mouse-2-action)
-    "Create clickable button's code which is used by mode-line-format."
+  (defun eh-exwm/create-mode-line-shortcut (string &optional mouse-1-action mouse-3-action mouse-2-action)
+    "Create clickable shortcut's code which is used by mode-line-format."
     `(:eval (propertize
              ,string
              'face 'mode-line-buffer-id
@@ -116,11 +116,16 @@
                      (interactive "e")
                      (with-selected-window (posn-window (event-start event))
                        ,mouse-1-action)))
-               (define-key map [mode-line mouse-3]
+               (define-key map [mode-line mouse-2]
                  #'(lambda (event)
                      (interactive "e")
                      (with-selected-window (posn-window (event-start event))
                        ,mouse-2-action)))
+               (define-key map [mode-line mouse-3]
+                 #'(lambda (event)
+                     (interactive "e")
+                     (with-selected-window (posn-window (event-start event))
+                       ,mouse-3-action)))
                map))))
 
   (defun eh-exwm/find-x-window-buffer (regexp)
@@ -157,15 +162,17 @@ if matched window can't be found, run shell command `cmd'."
           (exwm-workspace-switch-to-buffer buffer)
         (start-process-shell-command cmd nil cmd)))
 
-    (push (eh-exwm/create-mode-line-button
-           (format "[%s] " (or shortcut-name regexp))
-           `(eh-exwm/jump-or-exec ,regexp ,cmd ,shortcut-name t)
-           `(kill-buffer))
-          eh-exwm/mode-line-buttons)
+    (let ((name (format "[%s] " (or shortcut-name regexp))))
+      (push (eh-exwm/create-mode-line-shortcut
+             name
+             `(eh-exwm/jump-or-exec ,regexp ,cmd ,shortcut-name t)
+             `(kill-buffer)
+             `(eh-exwm/delete-mode-line-shortcut ,name))
+            eh-exwm/mode-line-shortcuts))
 
-    (setq eh-exwm/mode-line-buttons
+    (setq eh-exwm/mode-line-shortcuts
           (cl-delete-duplicates
-           eh-exwm/mode-line-buttons
+           eh-exwm/mode-line-shortcuts
            :test #'(lambda (x y)
                      (equal (nth 1 (cadr x))
                             (nth 1 (cadr y)))))))
@@ -175,42 +182,50 @@ if matched window can't be found, run shell command `cmd'."
          (stringp string)
          (string-match-p regexp string)))
 
-  (defun eh-exwm/clean-mode-line-buttons ()
+  (defun eh-exwm/delete-mode-line-shortcut (button-name)
+    (setq eh-exwm/mode-line-shortcuts
+          (cl-remove-if
+           #'(lambda (x)
+               (equal button-name (nth 1 (cadr x))))
+           eh-exwm/mode-line-shortcuts))
+    (eh-exwm/save-mode-line-shortcuts)
+    (eh-exwm/update-mode-line))
+
+  (defun eh-exwm/clean-mode-line-shortcuts ()
     (interactive)
-    (setq eh-exwm/mode-line-buttons nil)
-    (customize-save-variable
-     'eh-exwm/mode-line-buttons
-     eh-exwm/mode-line-buttons))
+    (setq eh-exwm/mode-line-shortcuts nil)
+    (eh-exwm/save-mode-line-shortcuts)
+    (eh-exwm/update-mode-line))
 
-  (defun eh-exwm/save-mode-line-buttons ()
+  (defun eh-exwm/save-mode-line-shortcuts ()
     (interactive)
     (customize-save-variable
-     'eh-exwm/mode-line-buttons
-     eh-exwm/mode-line-buttons))
+     'eh-exwm/mode-line-shortcuts
+     eh-exwm/mode-line-shortcuts))
 
-  (add-hook 'kill-emacs-hook #'eh-exwm/save-mode-line-buttons)
+  (add-hook 'kill-emacs-hook #'eh-exwm/save-mode-line-shortcuts)
 
-  (defun eh-exwm/apps-mode-line-enable ()
+  (defun eh-exwm/create-mode-line ()
     (setq mode-line-format
-          `(,(eh-exwm/create-mode-line-button
-              "[E]" '(eh-exwm/emacs-mode-line-enable) '(eh-exwm/emacs-mode-line-enable))
-            ,(eh-exwm/create-mode-line-button
+          `(,(eh-exwm/create-mode-line-shortcut
+              "[E]" '(eh-exwm/reset-mode-line) '(eh-exwm/reset-mode-line))
+            ,(eh-exwm/create-mode-line-shortcut
               "[+]" '(delete-other-windows) '(delete-other-windows))
-            ,(eh-exwm/create-mode-line-button
+            ,(eh-exwm/create-mode-line-shortcut
               "[D]" '(delete-window) '(delete-window))
             " -"
-            ,(eh-exwm/create-mode-line-button
+            ,(eh-exwm/create-mode-line-shortcut
               "[X]" '(kill-buffer) '(kill-buffer))
             "- "
-            ,@eh-exwm/mode-line-buttons
+            ,@eh-exwm/mode-line-shortcuts
             "- "
-            ,(eh-exwm/create-mode-line-button
+            ,(eh-exwm/create-mode-line-shortcut
               "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
-            ,(eh-exwm/create-mode-line-button
+            ,(eh-exwm/create-mode-line-shortcut
               "[_]" '(exwm-floating-hide) '(exwm-floating-hide))
-            ,(eh-exwm/create-mode-line-button
+            ,(eh-exwm/create-mode-line-shortcut
               "[-]" '(split-window-below) '(split-window-below))
-            ,(eh-exwm/create-mode-line-button
+            ,(eh-exwm/create-mode-line-shortcut
               "[|]" '(split-window-right) '(split-window-right))
             " -:"
             mode-line-mule-info
@@ -219,13 +234,13 @@ if matched window can't be found, run shell command `cmd'."
     (force-mode-line-update))
 
   (setq-default mode-line-format
-                `(,(eh-exwm/create-mode-line-button
-                    "[E]" '(eh-exwm/apps-mode-line-enable) '(eh-exwm/apps-mode-line-enable))
+                `(,(eh-exwm/create-mode-line-shortcut
+                    "[E]" '(eh-exwm/create-mode-line) '(eh-exwm/create-mode-line))
                   ,(default-value 'mode-line-format)))
 
-  (defun eh-exwm/emacs-mode-line-enable ()
+  (defun eh-exwm/reset-mode-line ()
     (setq mode-line-format (default-value 'mode-line-format))
-    (setq eh-exwm/apps-mode-line-active-p nil)
+    (setq eh-exwm/mode-line-active-p nil)
     (force-mode-line-update))
 
   (defun eh-exwm/update-mode-line ()
@@ -233,8 +248,8 @@ if matched window can't be found, run shell command `cmd'."
     (dolist (buffer (buffer-list))
       (with-current-buffer buffer
         (if (eq major-mode 'exwm-mode)
-            (eh-exwm/apps-mode-line-enable)
-          (eh-exwm/emacs-mode-line-enable)))))
+            (eh-exwm/create-mode-line)
+          (eh-exwm/reset-mode-line)))))
 
   (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-mode-line)
 
