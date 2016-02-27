@@ -103,7 +103,9 @@
                           (string= "gimp" exwm-instance-name))
                   (exwm-workspace-rename-buffer (concat "Exwm:" exwm-title)))))
 
-  (defun eh-exwm/create-mode-line-shortcut (string &optional mouse-1-action mouse-3-action mouse-2-action)
+  (defun eh-exwm/create-mode-line-shortcut (string &optional mouse-1-action
+                                                   mouse-3-action mouse-2-action
+                                                   active-down-mouse)
     "Create clickable shortcut's code which is used by mode-line-format."
     `(:eval (propertize
              ,string
@@ -126,6 +128,13 @@
                      (interactive "e")
                      (with-selected-window (posn-window (event-start event))
                        ,mouse-3-action)))
+               (when ,active-down-mouse
+                 (define-key map [mode-line down-mouse-1]
+                   #'eh-exwm/floating-window-move)
+                 (define-key map [mode-line down-mouse-3]
+                   #'eh-exwm/floating-window-resize)
+                 (define-key map [mode-line down-mouse-2]
+                   #'eh-exwm/floating-window-move))
                map))))
 
   (defun eh-exwm/find-x-window-buffer (regexp)
@@ -226,7 +235,8 @@ if matched window can't be found, run shell command `cmd'."
               "[|]" '(split-window-right) '(split-window-right))
             " -:"
             mode-line-mule-info
-            "-"))
+            ,(eh-exwm/create-mode-line-shortcut
+              " -------- " nil nil nil t)))
     (setq eh-exwm/mode-line-active-p t)
     (force-mode-line-update))
 
@@ -249,6 +259,49 @@ if matched window can't be found, run shell command `cmd'."
           (eh-exwm/reset-mode-line)))))
 
   (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-mode-line)
+
+  (defun eh-exwm/floating-window-move (start-event)
+    (interactive "e")
+    (when exwm--floating-frame
+      (let* ((orig-mouse (mouse-position))
+             (orig-x (car (cdr orig-mouse)))
+             (orig-y (cdr (cdr orig-mouse)))
+             (frame (window-frame (car (car (cdr start-event)))))
+             (char-width (frame-char-width frame))
+             (echo-keystrokes 0)
+             (done nil)
+             event mouse x y)
+        (track-mouse
+          (while (not done)
+            (setq event (read-event)
+                  mouse (mouse-position))
+            ;; do nothing if
+            ;;   - there is a switch-frame event.
+            ;;   - the mouse isn't in the frame that we started in
+            ;;   - the mouse isn't in any Emacs frame
+            ;; drag if
+            ;;   - there is a mouse-movement event
+            ;;   - there is a scroll-bar-movement event
+            ;;     (same as mouse movement for our purposes)
+            ;; quit if
+            ;;   - there is a keyboard event or some other unknown event
+            ;;     unknown event.
+            (cond ((integerp event)
+                   (setq done t))
+                  ((eq (car event) 'switch-frame)
+                   nil)
+                  ((not (memq (car event)
+                              '(mouse-movement scroll-bar-movement)))
+                   (setq done t))
+                  ((not (eq (car mouse) frame))
+                   nil)
+                  ((null (car (cdr mouse)))
+                   nil)
+                  (t (setq x (car (cdr mouse))
+                           y (cdr (cdr mouse)))
+                     (exwm-floating-move
+                      (* char-width (- x orig-x))
+                      (* char-width (- y orig-y))))))))))
 
   (defun eh-exwm/run-shell-command (cmd)
     (start-process-shell-command cmd nil cmd))
