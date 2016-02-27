@@ -293,7 +293,7 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/file-manager ()
     (interactive)
-    (eh-exwm/jump-or-exec "Nautilus" "nautilus --no-desktop"))
+    (eh-exwm/jump-or-exec "Nautilus" "nautilus --no-desktop" "Files"))
 
   (defun eh-exwm/crossover ()
     (interactive)
@@ -323,11 +323,11 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/winxp ()
     (interactive)
-    (eh-exwm/jump-or-exec "VirtualBox" "VBoxManage startvm winxp"))
+    (eh-exwm/jump-or-exec "VirtualBox" "VBoxManage startvm winxp" "VBox"))
 
   (defun eh-exwm/mplayer ()
     (interactive)
-    (eh-exwm/jump-or-exec "Smplayer" "smplayer"))
+    (eh-exwm/jump-or-exec "Smplayer" "smplayer" "Mplayer"))
 
   (defun eh-exwm/htop ()
     (interactive)
@@ -335,7 +335,7 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/x-terminal-emulator ()
     (interactive)
-    (eh-exwm/jump-or-exec "default-terminal" "xfce4-terminal -T default-terminal" "Terminal"))
+    (eh-exwm/jump-or-exec "default-terminal" "xfce4-terminal -T default-terminal" "Term"))
 
   (defun eh-exwm/launch-new-terminal ()
     (interactive)
