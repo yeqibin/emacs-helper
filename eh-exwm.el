@@ -262,6 +262,14 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/floating-window-move (start-event)
     (interactive "e")
+    (eh-exwm/floating-window-move-or-resize start-event))
+
+  (defun eh-exwm/floating-window-resize (start-event)
+    (interactive "e")
+    (eh-exwm/floating-window-move-or-resize start-event t))
+
+  (defun eh-exwm/floating-window-move-or-resize (start-event &optional resize)
+    (interactive "e")
     (when exwm--floating-frame
       (let* ((orig-mouse (mouse-position))
              (orig-x (car (cdr orig-mouse)))
@@ -270,7 +278,7 @@ if matched window can't be found, run shell command `cmd'."
              (char-width (frame-char-width frame))
              (echo-keystrokes 0)
              (done nil)
-             event mouse x y)
+             event mouse x y delta-x delta-y)
         (track-mouse
           (while (not done)
             (setq event (read-event)
@@ -298,10 +306,13 @@ if matched window can't be found, run shell command `cmd'."
                   ((null (car (cdr mouse)))
                    nil)
                   (t (setq x (car (cdr mouse))
-                           y (cdr (cdr mouse)))
-                     (exwm-floating-move
-                      (* char-width (- x orig-x))
-                      (* char-width (- y orig-y))))))))))
+                           y (cdr (cdr mouse))
+                           delta-x (* char-width (- x orig-x))
+                           delta-y (* char-width (- y orig-y)))
+                     (if resize
+                         (progn (exwm-layout-enlarge-window delta-y)
+                                (exwm-layout-enlarge-window delta-x t))
+                       (exwm-floating-move delta-x delta-y)))))))))
 
   (defun eh-exwm/run-shell-command (cmd)
     (start-process-shell-command cmd nil cmd))
