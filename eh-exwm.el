@@ -215,7 +215,7 @@ if matched window can't be found, run shell command `cmd'."
               "[X]" '(kill-buffer) '(kill-buffer))
             " - "
             ,@eh-exwm/mode-line-shortcuts
-            "- "
+            " - "
             ,(eh-exwm/create-mode-line-shortcut
               "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
             ,(eh-exwm/create-mode-line-shortcut
