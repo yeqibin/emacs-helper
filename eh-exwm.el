@@ -157,18 +157,18 @@ if matched window can't be found, run shell command `cmd'."
           (exwm-workspace-switch-to-buffer buffer)
         (start-process-shell-command cmd nil cmd)))
 
-    (let ((buffer (eh-exwm/find-x-window-buffer regexp)))
-      (push (eh-exwm/create-mode-line-button
-             (format "[%s] " (or shortcut-name regexp))
-             `(eh-exwm/jump-or-exec ,regexp ,cmd ,shortcut-name t)
-             `(kill-buffer ,buffer))
-            eh-exwm/mode-line-buttons)
-      (setq eh-exwm/mode-line-buttons
-            (cl-delete-duplicates
-             eh-exwm/mode-line-buttons
-             :test #'(lambda (x y)
-                       (equal (nth 1 (cadr x))
-                              (nth 1 (cadr y))))))))
+    (push (eh-exwm/create-mode-line-button
+           (format "[%s] " (or shortcut-name regexp))
+           `(eh-exwm/jump-or-exec ,regexp ,cmd ,shortcut-name t)
+           `(kill-buffer))
+          eh-exwm/mode-line-buttons)
+
+    (setq eh-exwm/mode-line-buttons
+          (cl-delete-duplicates
+           eh-exwm/mode-line-buttons
+           :test #'(lambda (x y)
+                     (equal (nth 1 (cadr x))
+                            (nth 1 (cadr y)))))))
 
   (defun eh-exwm/string-match-p (regexp string)
     (and (stringp regexp)
