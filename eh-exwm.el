@@ -177,30 +177,34 @@ if matched window can't be found, run shell command `cmd'."
                                      (nth 1 (cadr y)))))))
       (setq mode-line-format
             `(,(eh-exwm/create-mode-line-button
-                "[EXWM]" '(eh-exwm/emacs-mode-line-enable) '(eh-exwm/emacs-mode-line-enable))
-              " "
-              mode-line-mule-info
-              "-"
+                "[E]" '(eh-exwm/emacs-mode-line-enable) '(eh-exwm/emacs-mode-line-enable))
+              ,(eh-exwm/create-mode-line-button
+                "[+]" '(delete-other-windows) '(delete-other-windows))
+              ,(eh-exwm/create-mode-line-button
+                "[D]" '(delete-window) '(delete-window))
+              " -"
               ,(eh-exwm/create-mode-line-button
                 "[X]" '(kill-buffer) '(kill-buffer))
+              "- "
+              ,@buttons
+              "- "
               ,(eh-exwm/create-mode-line-button
                 "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
               ,(eh-exwm/create-mode-line-button
                 "[_]" '(exwm-floating-hide) '(exwm-floating-hide))
               ,(eh-exwm/create-mode-line-button
-                "[+]" '(delete-other-windows) '(delete-other-windows))
-              ,(eh-exwm/create-mode-line-button
                 "[-]" '(split-window-below) '(split-window-below))
               ,(eh-exwm/create-mode-line-button
                 "[|]" '(split-window-right) '(split-window-right))
-              "- "
-              ,@buttons))
+              " -:"
+              mode-line-mule-info
+              "-"))
       (setq eh-exwm/mode-line-active-p t)
       (force-mode-line-update)))
 
   (setq-default mode-line-format
                 `(,(eh-exwm/create-mode-line-button
-                    "[EXWM]" '(eh-exwm/apps-mode-line-enable) '(eh-exwm/apps-mode-line-enable))
+                    "[E]" '(eh-exwm/apps-mode-line-enable) '(eh-exwm/apps-mode-line-enable))
                   ,(default-value 'mode-line-format)))
 
   (defun eh-exwm/emacs-mode-line-enable ()
