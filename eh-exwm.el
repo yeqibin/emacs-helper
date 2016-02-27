@@ -83,6 +83,10 @@
   ;; Disable dialog boxes since they are unusable in EXWM
   (setq use-dialog-box nil)
 
+  ;; eh-exwm own variables
+  (defvar eh-exwm/mode-line-buttons nil)
+  (defvar eh-exwm/apps-mode-line-active-p nil)
+
   ;; All buffers created in EXWM mode are named "*EXWM*". You may want to change
   ;; when a new window class name or title is available.
   ;; it in `exwm-update-class-hook' and `exwm-update-title-hook', which are run
@@ -118,8 +122,6 @@
                      (with-selected-window (posn-window (event-start event))
                        ,mouse-2-action)))
                map))))
-
-  (defvar eh-exwm/mode-line-buttons nil)
 
   (defun eh-exwm/find-x-window-buffer (regexp)
     "Find a buffer of x-window which class, install or title is matched `regexp'."
@@ -166,8 +168,6 @@ if matched window can't be found, run shell command `cmd'."
     (and (stringp regexp)
          (stringp string)
          (string-match-p regexp string)))
-
-  (defvar eh-exwm/apps-mode-line-active-p nil)
 
   (defun eh-exwm/apps-mode-line-enable ()
     (let ((buttons (cl-delete-duplicates
