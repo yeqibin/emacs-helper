@@ -178,6 +178,8 @@ if matched window can't be found, run shell command `cmd'."
       (setq mode-line-format
             `(,(eh-exwm/create-mode-line-button
                 "[EXWM]" '(eh-exwm/emacs-mode-line-enable) '(eh-exwm/emacs-mode-line-enable))
+              " "
+              mode-line-mule-info
               "-"
               ,(eh-exwm/create-mode-line-button
                 "[X]" '(kill-buffer) '(kill-buffer))
