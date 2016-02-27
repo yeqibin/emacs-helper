@@ -220,7 +220,6 @@ if matched window can't be found, run shell command `cmd'."
     (start-process-shell-command cmd nil cmd))
 
   (defun eh-exwm/run-shell-command-interactively (cmd)
-
     (interactive
      (list (read-shell-command "Run shell command: ")))
     (start-process-shell-command cmd nil cmd))
