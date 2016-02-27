@@ -162,7 +162,7 @@ if matched window can't be found, run shell command `cmd'."
           (exwm-workspace-switch-to-buffer buffer)
         (start-process-shell-command cmd nil cmd)))
 
-    (let ((name (format "[%s] " (or shortcut-name regexp))))
+    (let ((name (format "[%s]" (or shortcut-name regexp))))
       (push (eh-exwm/create-mode-line-shortcut
              name
              `(eh-exwm/jump-or-exec ,regexp ,cmd ,shortcut-name t)
@@ -201,8 +201,8 @@ if matched window can't be found, run shell command `cmd'."
     (interactive)
     (customize-save-variable
      'eh-exwm/mode-line-shortcuts
-     eh-exwm/mode-line-shortcuts))
 
+     eh-exwm/mode-line-shortcuts))
   (add-hook 'kill-emacs-hook #'eh-exwm/save-mode-line-shortcuts)
 
   (defun eh-exwm/create-mode-line ()
@@ -212,11 +212,8 @@ if matched window can't be found, run shell command `cmd'."
             ,(eh-exwm/create-mode-line-shortcut
               "[+]" '(delete-other-windows) '(delete-other-windows))
             ,(eh-exwm/create-mode-line-shortcut
-              "[D]" '(delete-window) '(delete-window))
-            " -"
-            ,(eh-exwm/create-mode-line-shortcut
               "[X]" '(kill-buffer) '(kill-buffer))
-            "- "
+            " - "
             ,@eh-exwm/mode-line-shortcuts
             "- "
             ,(eh-exwm/create-mode-line-shortcut
