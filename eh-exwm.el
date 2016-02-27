@@ -119,10 +119,10 @@
                        ,mouse-2-action)))
                map))))
 
-  (defvar eh-exwm/mode-line-buttons-list nil)
+  (defvar eh-exwm/mode-line-buttons nil)
 
-  (defun eh-exwm/find-xwindow-buffer (regexp)
-    "Find a buffer of xwindow which class, install or title is matched `regexp'."
+  (defun eh-exwm/find-x-window-buffer (regexp)
+    "Find a buffer of x-window which class, install or title is matched `regexp'."
     (let* ((buffers (buffer-list))
            (buffers-list (list nil nil nil)))
 
@@ -140,7 +140,7 @@
                         #'(lambda (a b)
                             (< (length a) (length b))))))))
 
-  (defun eh-exwm/jump-or-exec (regexp cmd &optional current-window)
+  (defun eh-exwm/jump-or-exec (regexp cmd &optional shortcut-name current-window)
     "Jump to a window which class, instance or title matched `regexp',
 if matched window can't be found, run shell command `cmd'."
     (when (and (not current-window)
@@ -150,17 +150,17 @@ if matched window can't be found, run shell command `cmd'."
        #'(lambda () (other-window 1))
        nil nil 1))
 
-    (let ((buffer (eh-exwm/find-xwindow-buffer regexp)))
+    (let ((buffer (eh-exwm/find-x-window-buffer regexp)))
       (if buffer
           (exwm-workspace-switch-to-buffer buffer)
         (start-process-shell-command cmd nil cmd)))
 
-    (let ((buffer (eh-exwm/find-xwindow-buffer regexp)))
+    (let ((buffer (eh-exwm/find-x-window-buffer regexp)))
       (push (eh-exwm/create-mode-line-button
-             (format "[%s] " regexp)
-             `(eh-exwm/jump-or-exec ,regexp ,cmd t)
+             (format "[%s] " (or shortcut-name regexp))
+             `(eh-exwm/jump-or-exec ,regexp ,cmd ,shortcut-name t)
              `(kill-buffer ,buffer))
-            eh-exwm/mode-line-buttons-list)))
+            eh-exwm/mode-line-buttons)))
 
   (defun eh-exwm/string-match-p (regexp string)
     (and (stringp regexp)
@@ -171,7 +171,7 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/apps-mode-line-enable ()
     (let ((buttons (cl-delete-duplicates
-                    eh-exwm/mode-line-buttons-list
+                    eh-exwm/mode-line-buttons
                     :test #'(lambda (x y)
                               (equal (nth 1 (cadr x))
                                      (nth 1 (cadr y)))))))
@@ -268,7 +268,7 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/firefox ()
     (interactive)
-    (eh-exwm/jump-or-exec "Iceweasel" "iceweasel"))
+    (eh-exwm/jump-or-exec "Iceweasel" "iceweasel" "Firefox"))
 
   (defun eh-exwm/file-manager ()
     (interactive)
@@ -278,26 +278,27 @@ if matched window can't be found, run shell command `cmd'."
     (interactive)
     (eh-exwm/jump-or-exec "Crossover" "/opt/cxoffice/bin/crossover"))
 
-  (defun eh-exwm/launch-crossover-app (app bottle)
+  (defun eh-exwm/launch-crossover-app (app bottle &optional shortcut-name)
     (eh-exwm/jump-or-exec
      app
-     (format "/opt/cxoffice/bin/wine --bottle %s --cx-app '%s'" bottle app)))
+     (format "/opt/cxoffice/bin/wine --bottle %s --cx-app '%s'" bottle app)
+     shortcut-name))
 
   (defun eh-exwm/qq ()
     (interactive)
-    (eh-exwm/launch-crossover-app "TM.exe" "腾讯_TM_2013"))
+    (eh-exwm/launch-crossover-app "TM.exe" "腾讯_TM_2013" "TM"))
 
   (defun eh-exwm/word ()
     (interactive)
-    (eh-exwm/launch-crossover-app "WINWORD.EXE" "Microsoft_Office_2007"))
+    (eh-exwm/launch-crossover-app "WINWORD.EXE" "Microsoft_Office_2007" "Words"))
 
   (defun eh-exwm/excel ()
     (interactive)
-    (eh-exwm/launch-crossover-app "EXCEL.EXE" "Microsoft_Office_2007"))
+    (eh-exwm/launch-crossover-app "EXCEL.EXE" "Microsoft_Office_2007" "Excel"))
 
   (defun eh-exwm/ppt ()
     (interactive)
-    (eh-exwm/launch-crossover-app "POWERPNT.EXE" "Microsoft_Office_2007"))
+    (eh-exwm/launch-crossover-app "POWERPNT.EXE" "Microsoft_Office_2007" "PPT"))
 
   (defun eh-exwm/winxp ()
     (interactive)
@@ -309,11 +310,11 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/htop ()
     (interactive)
-    (eh-exwm/jump-or-exec "htop" "xfce4-terminal -T htop -e htop"))
+    (eh-exwm/jump-or-exec "htop" "xfce4-terminal -T htop -e htop" "Top"))
 
   (defun eh-exwm/x-terminal-emulator ()
     (interactive)
-    (eh-exwm/jump-or-exec "default-terminal" "xfce4-terminal -T default-terminal"))
+    (eh-exwm/jump-or-exec "default-terminal" "xfce4-terminal -T default-terminal" "Terminal"))
 
   (defun eh-exwm/launch-new-terminal ()
     (interactive)
