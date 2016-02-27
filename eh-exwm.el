@@ -276,9 +276,12 @@ if matched window can't be found, run shell command `cmd'."
              (orig-y (cdr (cdr orig-mouse)))
              (frame (window-frame (car (car (cdr start-event)))))
              (char-width (frame-char-width frame))
+             (char-height (frame-char-height frame))
              (echo-keystrokes 0)
              (done nil)
-             event mouse x y delta-x delta-y)
+             (last-x orig-x)
+             (last-y orig-y)
+             event mouse x y)
         (track-mouse
           (while (not done)
             (setq event (read-event)
@@ -306,13 +309,16 @@ if matched window can't be found, run shell command `cmd'."
                   ((null (car (cdr mouse)))
                    nil)
                   (t (setq x (car (cdr mouse))
-                           y (cdr (cdr mouse))
-                           delta-x (* char-width (- x orig-x))
-                           delta-y (* char-width (- y orig-y)))
+                           y (cdr (cdr mouse)))
                      (if resize
-                         (progn (exwm-layout-enlarge-window delta-y)
-                                (exwm-layout-enlarge-window delta-x t))
-                       (exwm-floating-move delta-x delta-y)))))))))
+                         (progn
+                           (exwm-layout-enlarge-window (* char-height (- y last-y)))
+                           (exwm-layout-enlarge-window-horizontally (* char-height (- x last-x)))
+                           (setq last-x x)
+                           (setq last-y y))
+                       (exwm-floating-move
+                        (* char-width (- x orig-x))
+                        (* char-width (- y orig-y)))))))))))
 
   (defun eh-exwm/run-shell-command (cmd)
     (start-process-shell-command cmd nil cmd))
