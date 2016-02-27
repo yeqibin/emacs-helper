@@ -162,45 +162,61 @@ if matched window can't be found, run shell command `cmd'."
              (format "[%s] " (or shortcut-name regexp))
              `(eh-exwm/jump-or-exec ,regexp ,cmd ,shortcut-name t)
              `(kill-buffer ,buffer))
-            eh-exwm/mode-line-buttons)))
+            eh-exwm/mode-line-buttons)
+      (setq eh-exwm/mode-line-buttons
+            (cl-delete-duplicates
+             eh-exwm/mode-line-buttons
+             :test #'(lambda (x y)
+                       (equal (nth 1 (cadr x))
+                              (nth 1 (cadr y))))))))
 
   (defun eh-exwm/string-match-p (regexp string)
     (and (stringp regexp)
          (stringp string)
          (string-match-p regexp string)))
 
+  (defun eh-exwm/clean-mode-line-buttons ()
+    (interactive)
+    (setq eh-exwm/mode-line-buttons nil)
+    (customize-save-variable
+     'eh-exwm/mode-line-buttons
+     eh-exwm/mode-line-buttons))
+
+  (defun eh-exwm/save-mode-line-buttons ()
+    (interactive)
+    (customize-save-variable
+     'eh-exwm/mode-line-buttons
+     eh-exwm/mode-line-buttons))
+
+  (add-hook 'kill-emacs-hook #'eh-exwm/save-mode-line-buttons)
+
   (defun eh-exwm/apps-mode-line-enable ()
-    (let ((buttons (cl-delete-duplicates
-                    eh-exwm/mode-line-buttons
-                    :test #'(lambda (x y)
-                              (equal (nth 1 (cadr x))
-                                     (nth 1 (cadr y)))))))
-      (setq mode-line-format
-            `(,(eh-exwm/create-mode-line-button
-                "[E]" '(eh-exwm/emacs-mode-line-enable) '(eh-exwm/emacs-mode-line-enable))
-              ,(eh-exwm/create-mode-line-button
-                "[+]" '(delete-other-windows) '(delete-other-windows))
-              ,(eh-exwm/create-mode-line-button
-                "[D]" '(delete-window) '(delete-window))
-              " -"
-              ,(eh-exwm/create-mode-line-button
-                "[X]" '(kill-buffer) '(kill-buffer))
-              "- "
-              ,@buttons
-              "- "
-              ,(eh-exwm/create-mode-line-button
-                "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
-              ,(eh-exwm/create-mode-line-button
-                "[_]" '(exwm-floating-hide) '(exwm-floating-hide))
-              ,(eh-exwm/create-mode-line-button
-                "[-]" '(split-window-below) '(split-window-below))
-              ,(eh-exwm/create-mode-line-button
-                "[|]" '(split-window-right) '(split-window-right))
-              " -:"
-              mode-line-mule-info
-              "-"))
-      (setq eh-exwm/mode-line-active-p t)
-      (force-mode-line-update)))
+    (setq mode-line-format
+          `(,(eh-exwm/create-mode-line-button
+              "[E]" '(eh-exwm/emacs-mode-line-enable) '(eh-exwm/emacs-mode-line-enable))
+            ,(eh-exwm/create-mode-line-button
+              "[+]" '(delete-other-windows) '(delete-other-windows))
+            ,(eh-exwm/create-mode-line-button
+              "[D]" '(delete-window) '(delete-window))
+            " -"
+            ,(eh-exwm/create-mode-line-button
+              "[X]" '(kill-buffer) '(kill-buffer))
+            "- "
+            ,@eh-exwm/mode-line-buttons
+            "- "
+            ,(eh-exwm/create-mode-line-button
+              "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
+            ,(eh-exwm/create-mode-line-button
+              "[_]" '(exwm-floating-hide) '(exwm-floating-hide))
+            ,(eh-exwm/create-mode-line-button
+              "[-]" '(split-window-below) '(split-window-below))
+            ,(eh-exwm/create-mode-line-button
+              "[|]" '(split-window-right) '(split-window-right))
+            " -:"
+            mode-line-mule-info
+            "-"))
+    (setq eh-exwm/mode-line-active-p t)
+    (force-mode-line-update))
 
   (setq-default mode-line-format
                 `(,(eh-exwm/create-mode-line-button
