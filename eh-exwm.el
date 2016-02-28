@@ -113,28 +113,33 @@
              'mouse-face 'mode-line-highlight
              'local-map
              (let ((map (make-sparse-keymap)))
-               (define-key map [mode-line mouse-1]
-                 #'(lambda (event)
-                     (interactive "e")
-                     (with-selected-window (posn-window (event-start event))
-                       ,mouse-1-action)))
-               (define-key map [mode-line mouse-2]
-                 #'(lambda (event)
-                     (interactive "e")
-                     (with-selected-window (posn-window (event-start event))
-                       ,mouse-2-action)))
-               (define-key map [mode-line mouse-3]
-                 #'(lambda (event)
-                     (interactive "e")
-                     (with-selected-window (posn-window (event-start event))
-                       ,mouse-3-action)))
-               (when ,active-down-mouse
+               (unless (eq (quote ,mouse-1-action) nil)
+                 (define-key map [mode-line mouse-1]
+                   #'(lambda (event)
+                       (interactive "e")
+                       (with-selected-window (posn-window (event-start event))
+                         ,mouse-1-action))))
+               (unless (eq (quote ,mouse-2-action) nil)
+                 (define-key map [mode-line mouse-2]
+                   #'(lambda (event)
+                       (interactive "e")
+                       (with-selected-window (posn-window (event-start event))
+                         ,mouse-2-action))))
+               (unless (eq (quote ,mouse-3-action) nil)
+                 (define-key map [mode-line mouse-3]
+                   #'(lambda (event)
+                       (interactive "e")
+                       (with-selected-window (posn-window (event-start event))
+                         ,mouse-3-action))))
+               (when (and (eq major-mode 'exwm-mode)
+                          exwm--floating-frame
+                          ,active-down-mouse)
                  (define-key map [mode-line down-mouse-1]
                    #'eh-exwm/floating-window-move)
-                 (define-key map [mode-line down-mouse-3]
-                   #'eh-exwm/floating-window-resize)
                  (define-key map [mode-line down-mouse-2]
-                   #'eh-exwm/floating-window-move))
+                   #'eh-exwm/floating-window-move)
+                 (define-key map [mode-line down-mouse-3]
+                   #'eh-exwm/floating-window-resize))
                map))))
 
   (defun eh-exwm/find-x-window-buffer (regexp)
@@ -236,7 +241,8 @@ if matched window can't be found, run shell command `cmd'."
             " -:"
             mode-line-mule-info
             ,(eh-exwm/create-mode-line-shortcut
-              " -------- " nil nil nil t)))
+              (make-string 200 ?-) nil nil nil t)
+            ))
     (setq eh-exwm/mode-line-active-p t)
     (force-mode-line-update))
 
