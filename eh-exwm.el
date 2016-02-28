@@ -243,9 +243,11 @@ if matched window can't be found, run shell command `cmd'."
               "[+]" '(delete-other-windows) '(delete-other-windows))
             ,(eh-exwm/create-mode-line-shortcut
               "[X]" '(kill-buffer) '(kill-buffer))
-            " - "
+            ,(eh-exwm/create-mode-line-shortcut
+              " -- " nil nil nil t)
             ,@eh-exwm/mode-line-shortcuts
-            " - "
+            ,(eh-exwm/create-mode-line-shortcut
+              " -- " nil nil nil t)
             ,(eh-exwm/create-mode-line-shortcut
               "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
             ,(eh-exwm/create-mode-line-shortcut
@@ -256,9 +258,9 @@ if matched window can't be found, run shell command `cmd'."
               "[|]" '(split-window-right) '(split-window-right))
             " -:"
             mode-line-mule-info
+            "- "
             ,(eh-exwm/create-mode-line-shortcut
-              (make-string 200 ?-) nil nil nil t)
-            ))
+              (make-string 200 ?-) nil nil nil t)))
     (setq eh-exwm/mode-line-active-p t)
     (force-mode-line-update))
 
