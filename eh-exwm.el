@@ -86,6 +86,7 @@
   ;; eh-exwm own variables
   (defvar eh-exwm/mode-line-shortcuts nil)
   (defvar eh-exwm/mode-line-active-p nil)
+  (defvar eh-exwm/shortcuts-file "~/.emacs.d/eh-exwm/exwm-shortcuts.el")
 
   ;; All buffers created in EXWM mode are named "*EXWM*". You may want to change
   ;; when a new window class name or title is available.
@@ -213,11 +214,26 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/save-mode-line-shortcuts ()
     (interactive)
-    (customize-save-variable
-     'eh-exwm/mode-line-shortcuts
+    (message "Save eh-exwm shortcuts to \"%s\"" eh-exwm/shortcuts-file)
+    (unless (file-directory-p
+             (file-name-directory eh-exwm/shortcuts-file))
+      (make-directory (file-name-directory eh-exwm/shortcuts-file) t))
+    (with-temp-buffer
+      (erase-buffer)
+      (cl-prettyprint eh-exwm/mode-line-shortcuts)
+      (write-file eh-exwm/shortcuts-file)))
 
-     eh-exwm/mode-line-shortcuts))
+  (defun eh-exwm/load-mode-line-shortcuts ()
+    (interactive)
+    (message "Load eh-exwm shortcuts from \"%s\"" eh-exwm/shortcuts-file)
+    (with-temp-buffer
+      (erase-buffer)
+      (insert-file-contents eh-exwm/shortcuts-file)
+      (setq eh-exwm/mode-line-shortcuts
+            (read (current-buffer)))))
+
   (add-hook 'kill-emacs-hook #'eh-exwm/save-mode-line-shortcuts)
+  (add-hook 'emacs-startup-hook #'eh-exwm/load-mode-line-shortcuts)
 
   (defun eh-exwm/create-mode-line ()
     (setq mode-line-format
