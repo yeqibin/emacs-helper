@@ -531,7 +531,7 @@ if matched window can't be found, run shell command `cmd'."
 If DIR is t, then move left, otherwise move right."
     (interactive)
     (when (null arg)
-      (setq arg 3))
+      (setq arg 5))
     (let ((left-edge (nth 0 (window-edges))))
       (if (eh-exwm/xor (= left-edge 0) dir)
           (shrink-window arg t)
@@ -542,7 +542,7 @@ If DIR is t, then move left, otherwise move right."
 If DIR is t, then move up, otherwise move down."
     (interactive)
     (when (null arg)
-      (setq arg 3))
+      (setq arg 5))
     (let ((top-edge (nth 1 (window-edges))))
       (if (eh-exwm/xor (= top-edge 0) dir)
           (shrink-window arg nil)
