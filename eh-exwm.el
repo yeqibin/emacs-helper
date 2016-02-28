@@ -427,7 +427,11 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/winxp ()
     (interactive)
-    (eh-exwm/jump-or-exec "VirtualBox" "VBoxManage startvm winxp" "VBox"))
+    (eh-exwm/jump-or-exec "VirtualBox" "VBoxManage startvm winxp" "Winxp"))
+
+  (defun eh-exwm/virtualbox ()
+    (interactive)
+    (eh-exwm/jump-or-exec "VirtualBox" "virtualbox" "VBox"))
 
   (defun eh-exwm/mplayer ()
     (interactive)
