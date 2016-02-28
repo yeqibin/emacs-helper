@@ -299,6 +299,8 @@ if matched window can't be found, run shell command `cmd'."
              (orig-x (car (cdr orig-mouse)))
              (orig-y (cdr (cdr orig-mouse)))
              (frame (window-frame (car (car (cdr start-event)))))
+             (frame-width (cdr (assoc 'width (frame-parameters))))
+             (frame-height (cdr (assoc 'height (frame-parameters))))
              (char-width (frame-char-width frame))
              (char-height (frame-char-height frame))
              (echo-keystrokes 0)
@@ -335,11 +337,10 @@ if matched window can't be found, run shell command `cmd'."
                   (t (setq x (car (cdr mouse))
                            y (cdr (cdr mouse)))
                      (if resize
-                         (progn
-                           (exwm-layout-enlarge-window (* char-height (- y last-y)))
-                           (exwm-layout-enlarge-window-horizontally (* char-height (- x last-x)))
-                           (setq last-x x)
-                           (setq last-y y))
+                         (set-frame-size
+                          frame
+                          (- frame-width (- orig-x x))
+                          (- frame-height (- orig-y y)))
                        (exwm-floating-move
                         (* char-width (- x orig-x))
                         (* char-width (- y orig-y)))))))))))
