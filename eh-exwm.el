@@ -134,13 +134,13 @@
                          ,mouse-3-action))))
                (when (and (eq major-mode 'exwm-mode)
                           exwm--floating-frame
-                          ,active-down-mouse)
+                          (not (eq (quote ,active-down-mouse) nil)))
                  (define-key map [mode-line down-mouse-1]
-                   #'eh-exwm/floating-window-move)
+                   #'eh-exwm/mouse-floating-window-move)
                  (define-key map [mode-line down-mouse-2]
-                   #'eh-exwm/floating-window-move)
+                   #'eh-exwm/mouse-floating-window-move)
                  (define-key map [mode-line down-mouse-3]
-                   #'eh-exwm/floating-window-resize))
+                   #'eh-exwm/mouse-floating-window-resize))
                map))))
 
   (defun eh-exwm/find-x-window-buffer (regexp)
@@ -239,8 +239,9 @@ if matched window can't be found, run shell command `cmd'."
     (setq mode-line-format
           `(,(eh-exwm/create-mode-line-shortcut
               "[E]" '(eh-exwm/reset-mode-line) '(eh-exwm/reset-mode-line))
-            ,(eh-exwm/create-mode-line-shortcut
-              "[+]" '(delete-other-windows) '(delete-other-windows))
+            (exwm--floating-frame
+             nil ,(eh-exwm/create-mode-line-shortcut
+                   "[+]" '(delete-other-windows) '(delete-other-windows)))
             ,(eh-exwm/create-mode-line-shortcut
               "[X]" '(kill-buffer) '(kill-buffer))
             ,(eh-exwm/create-mode-line-shortcut
@@ -252,10 +253,16 @@ if matched window can't be found, run shell command `cmd'."
               "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
             ,(eh-exwm/create-mode-line-shortcut
               "[_]" '(exwm-floating-hide) '(exwm-floating-hide))
-            ,(eh-exwm/create-mode-line-shortcut
-              "[-]" '(split-window-below) '(split-window-below))
-            ,(eh-exwm/create-mode-line-shortcut
-              "[|]" '(split-window-right) '(split-window-right))
+            (exwm--floating-frame
+             nil ,(eh-exwm/create-mode-line-shortcut
+                   "[-]" '(split-window-below) '(split-window-below)))
+            (exwm--floating-frame
+             nil ,(eh-exwm/create-mode-line-shortcut
+                   "[|]" '(split-window-right) '(split-window-right)))
+            (exwm--floating-frame
+             ,(eh-exwm/create-mode-line-shortcut
+               "[0.7]" '(eh-exwm/floating-window-resize event 0.75)
+               '(eh-exwm/floating-window-resize event 0.75)))
             " -:"
             mode-line-mule-info
             "- "
@@ -284,15 +291,24 @@ if matched window can't be found, run shell command `cmd'."
 
   (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-mode-line)
 
-  (defun eh-exwm/floating-window-move (start-event)
-    (interactive "e")
-    (eh-exwm/floating-window-move-or-resize start-event))
+  (defun eh-exwm/floating-window-resize (event &optional scale)
+    (let* ((frame (window-frame (car (car (cdr event)))))
+           (screen-width (display-pixel-width))
+           (screen-height (display-pixel-height)))
+      (set-frame-size
+       frame
+       (round (* scale screen-width))
+       (round (* scale screen-height)) t)))
 
-  (defun eh-exwm/floating-window-resize (start-event)
+  (defun eh-exwm/mouse-floating-window-move (start-event)
     (interactive "e")
-    (eh-exwm/floating-window-move-or-resize start-event t))
+    (eh-exwm/mouse-floating-window-move-or-resize start-event))
 
-  (defun eh-exwm/floating-window-move-or-resize (start-event &optional resize)
+  (defun eh-exwm/mouse-floating-window-resize (start-event)
+    (interactive "e")
+    (eh-exwm/mouse-floating-window-move-or-resize start-event t))
+
+  (defun eh-exwm/mouse-floating-window-move-or-resize (start-event &optional resize)
     (interactive "e")
     (when exwm--floating-frame
       (let* ((orig-mouse (mouse-position))
