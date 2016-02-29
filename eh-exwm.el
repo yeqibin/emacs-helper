@@ -88,6 +88,9 @@
   (defvar eh-exwm/mode-line-active-p nil)
   (defvar eh-exwm/shortcuts-file "~/.emacs.d/eh-exwm/exwm-shortcuts.el")
 
+  (setq exwm-floating-border-width 3)
+  (setq exwm-floating-border-color "orange")
+
   ;; All buffers created in EXWM mode are named "*EXWM*". You may want to change
   ;; when a new window class name or title is available.
   ;; it in `exwm-update-class-hook' and `exwm-update-title-hook', which are run
