@@ -251,8 +251,9 @@ if matched window can't be found, run shell command `cmd'."
               " -- " nil nil nil t)
             ,(eh-exwm/create-mode-line-shortcut
               "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
-            ,(eh-exwm/create-mode-line-shortcut
-              "[_]" '(exwm-floating-hide) '(exwm-floating-hide))
+            (exwm--floating-frame
+             ,(eh-exwm/create-mode-line-shortcut
+               "[_]" '(exwm-floating-hide) '(exwm-floating-hide)))
             (exwm--floating-frame
              nil ,(eh-exwm/create-mode-line-shortcut
                    "[-]" '(split-window-below) '(split-window-below)))
@@ -261,8 +262,8 @@ if matched window can't be found, run shell command `cmd'."
                    "[|]" '(split-window-right) '(split-window-right)))
             (exwm--floating-frame
              ,(eh-exwm/create-mode-line-shortcut
-               "[0.7]" '(eh-exwm/floating-window-resize event 0.75)
-               '(eh-exwm/floating-window-resize event 0.75)))
+               "[Zoom]" '(eh-exwm/floating-window-resize event 0.75)
+               '(eh-exwm/floating-window-resize event 0.5)))
             " -:"
             mode-line-mule-info
             "- "
@@ -315,8 +316,8 @@ if matched window can't be found, run shell command `cmd'."
              (orig-x (car (cdr orig-mouse)))
              (orig-y (cdr (cdr orig-mouse)))
              (frame (window-frame (car (car (cdr start-event)))))
-             (frame-width (cdr (assoc 'width (frame-parameters))))
-             (frame-height (cdr (assoc 'height (frame-parameters))))
+             (frame-width (frame-width frame))
+             (frame-height (frame-height frame)
              (char-width (frame-char-width frame))
              (char-height (frame-char-height frame))
              (echo-keystrokes 0)
