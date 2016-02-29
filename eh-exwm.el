@@ -317,7 +317,7 @@ if matched window can't be found, run shell command `cmd'."
              (orig-y (cdr (cdr orig-mouse)))
              (frame (window-frame (car (car (cdr start-event)))))
              (frame-width (frame-width frame))
-             (frame-height (frame-height frame)
+             (frame-height (frame-height frame))
              (char-width (frame-char-width frame))
              (char-height (frame-char-height frame))
              (echo-keystrokes 0)
