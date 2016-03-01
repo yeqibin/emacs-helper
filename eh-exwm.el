@@ -241,7 +241,7 @@ if matched window can't be found, run shell command `cmd'."
   (defun eh-exwm/create-mode-line ()
     (setq mode-line-format
           `(,(eh-exwm/create-mode-line-shortcut
-              "[E]" '(eh-exwm/reset-mode-line) '(eh-exwm/reset-mode-line))
+              "[E]" '(eh-exwm/reset-mode-line) '(start-menu-popup))
             (exwm--floating-frame
              nil ,(eh-exwm/create-mode-line-shortcut
                    "[+]" '(delete-other-windows) '(delete-other-windows)))
@@ -280,7 +280,7 @@ if matched window can't be found, run shell command `cmd'."
 
   (setq-default mode-line-format
                 `(,(eh-exwm/create-mode-line-shortcut
-                    "[E]" '(eh-exwm/create-mode-line) '(eh-exwm/create-mode-line))
+                    "[E]" '(eh-exwm/create-mode-line) '(start-menu-popup))
                   ,(default-value 'mode-line-format)))
 
   (defun eh-exwm/reset-mode-line ()
@@ -457,6 +457,14 @@ if matched window can't be found, run shell command `cmd'."
     (interactive)
     (eh-exwm/run-shell-command "xfce4-power-manager"))
 
+  (defun eh-exwm/xset-bell-off ()
+    (interactive)
+    (eh-exwm/run-shell-command "xset b off"))
+
+  (defun eh-exwm/xmodmap ()
+    (interactive)
+    (eh-exwm/run-shell-command "xmodmap -e 'keycode 135 = Super_R'"))
+
   (defun eh-exwm/network-manager-applet ()
     (interactive)
     (eh-exwm/run-shell-command "nm-applet"))
@@ -467,7 +475,7 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/xscreensaver ()
     (interactive)
-    (eh-exwm/run-shell-command "xscreensaver -no-splash &"))
+    (eh-exwm/run-shell-command "xscreensaver -no-splash"))
 
   (defun eh-exwm/lock-screen ()
     (interactive)
@@ -686,7 +694,10 @@ If DIR is t, then move up, otherwise move down."
     (exwm-systemtray-enable)
     (add-hook 'exwm-init-hook 'eh-exwm/network-manager-applet t)
     (add-hook 'exwm-init-hook 'eh-exwm/volit t)
-    (add-hook 'exwm-init-hook 'eh-exwm/power-manager t))
+    (add-hook 'exwm-init-hook 'eh-exwm/power-manager t)
+    (add-hook 'exwm-init-hook 'eh-exwm/xscreensaver t)
+    (add-hook 'exwm-init-hook 'eh-exwm/xset-bell-off t)
+    (add-hook 'exwm-init-hook 'eh-exwm/xmodmap t))
 
   (use-package exim
     :ensure nil
