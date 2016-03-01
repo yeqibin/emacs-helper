@@ -376,32 +376,6 @@ if matched window can't be found, run shell command `cmd'."
      (list (read-shell-command "Run shell command: ")))
     (start-process-shell-command cmd nil cmd))
 
-  (defun exwm-generate-debian-menu-commands ()
-    (let ((file "/var/lib/emacs/exwm/exwm-menu.el")
-          debian-menu-alist)
-      (when (file-exists-p file)
-        (load file)
-        (setq debian-menu-alist
-              (when (boundp 'exwm-debian-menu-alist)
-                exwm-debian-menu-alist))
-        (dolist (debian-menu debian-menu-alist)
-          (let* ((debian-menu-command (nth 1 debian-menu))
-                 (debian-menu-name (nth 2 debian-menu))
-                 (exwm-command-name
-                  (concat "EXWM/"
-                          (replace-regexp-in-string
-                           "^-\\|-$" ""
-                           (replace-regexp-in-string
-                            "-+" "-"
-                            (replace-regexp-in-string
-                             "[^a-zA-Z0-9]" "-"
-                             (replace-regexp-in-string
-                              "/Debian\\|/Applications" ""
-                              debian-menu-name)))))))
-            (eval `(defun ,(intern exwm-command-name) ()
-                     (interactive)
-                     (start-process-shell-command ,exwm-command-name nil ,debian-menu-command))))))))
-
   (defun eh-exwm/suspend-computer ()
     (interactive)
     (eh-exwm/run-shell-command "systemctl suspend"))
@@ -631,31 +605,46 @@ If DIR is t, then move up, otherwise move down."
   (exwm-input-set-key (kbd "C-S-<right>") 'eh-exwm/move-border-right)
 
   ;; Generate debian menu
-  (exwm-generate-debian-menu-commands)
+  (defun eh-exwm/generate-debian-menu (debian-menu-file)
+    (when (file-exists-p debian-menu-file)
+      (let ((file-name (file-name-nondirectory debian-menu-file))
+            (file-content (with-temp-buffer
+                            (insert-file-contents debian-menu-file)
+                            (buffer-string)))
+            command section title hints icon needs)
+        (when (string-match "command=\"\\([^\"]+\\)\"" file-content)
+          (setq command (match-string 1 file-content)))
+        (when (string-match "section=\"\\([^\"]+\\)\"" file-content)
+          (setq section (match-string 1 file-content)))
+        (when (string-match "title=\"\\([^\"]+\\)\"" file-content)
+          (setq title (match-string 1 file-content)))
+        (when (string-match "hints=\"\\([^\"]+\\)\"" file-content)
+          (setq hints (match-string 1 file-content)))
+        (when (string-match "icon=\"\\([^\"]+\\)\"" file-content)
+          (setq icon (match-string 1 file-content)))
+        (when (string-match "needs=\"\\([^\"]+\\)\"" file-content)
+          (setq needs (match-string 1 file-content)))
+        (when command
+          (if (equal needs "text")
+              (eval `(defun ,(intern (concat "eh-exwm/menu/" file-name)) ()
+                       (interactive)
+                       (start-process-shell-command
+                        ,command nil
+                        ,(format "x-terminal-emulator --title %s -e %s" command command))))
+            (eval `(defun ,(intern (concat "eh-exwm/menu/" file-name)) ()
+                     (interactive)
+                     (start-process-shell-command ,command nil ,command))))))))
 
-  (use-package config-parser
-    :ensure nil
-    :config
-    (defmacro eh-exwm/generate-apps-commands ()
-      (let ((xdg-menu-files
-             (eh-directory-files-recursively
-              "/usr/share/applications" t "\\.desktop$")))
-        (dolist (xdg-menu-file xdg-menu-files)
-          (when (file-exists-p xdg-menu-file)
-            (let* ((file-config-data (config-parser-read xdg-menu-file "="))
-                   (type (config-parser-get file-config-data "Desktop Entry" "Type"))
-                   (exec (string-trim (replace-regexp-in-string
-                                       "%[a-zA-Z]" "" (config-parser-get
-                                                       file-config-data "Desktop Entry" "Exec") t)))
-                   (categories (or (config-parser-get file-config-data "Desktop Entry" "Categories")
-                                   ""))
-                   (name (config-parser-get file-config-data "Desktop Entry" "Name"))
-                   (comment (config-parser-get file-config-data "Desktop Entry" "Comment"))
-                   (icon (config-parser-get file-config-data "Desktop Entry" "Icon")))
-              (when (and exec (string-equal "Application" type))
-                `(defun ,(intern (concat "EXWM:" name)) ()
-                   (interactive)
-                   (start-process-shell-command ,exec nil ,exec)))))))))
+  (defun eh-exwm/generate-debian-menus ()
+    (dolist (debian-menu-dir '("/usr/share/menu/"
+                               "/usr/lib/menu/"
+                               "/etc/menu/"
+                               "~/.menu/"))
+      (when (file-exists-p debian-menu-dir)
+        (dolist (debian-menu-file (directory-files debian-menu-dir t "[^.].*"))
+          (eh-exwm/generate-debian-menu debian-menu-file)))))
+
+  (eh-exwm/generate-debian-menus)
 
   ;; Don't delete it
   (exwm-enable)
