@@ -250,6 +250,9 @@ if matched window can't be found, run shell command `cmd'."
             ,(eh-exwm/create-mode-line-shortcut
               " -- " nil nil nil t)
             ,@eh-exwm/mode-line-shortcuts
+            ":"
+            ,(eh-exwm/create-mode-line-shortcut
+              "[All]" '(buffer-menu) '(buffer-menu))
             ,(eh-exwm/create-mode-line-shortcut
               " -- " nil nil nil t)
             ,(eh-exwm/create-mode-line-shortcut
@@ -630,6 +633,30 @@ If DIR is t, then move up, otherwise move down."
   ;; Generate debian menu
   (exwm-generate-debian-menu-commands)
 
+  (use-package config-parser
+    :ensure nil
+    :config
+    (defmacro eh-exwm/generate-apps-commands ()
+      (let ((xdg-menu-files
+             (eh-directory-files-recursively
+              "/usr/share/applications" t "\\.desktop$")))
+        (dolist (xdg-menu-file xdg-menu-files)
+          (when (file-exists-p xdg-menu-file)
+            (let* ((file-config-data (config-parser-read xdg-menu-file "="))
+                   (type (config-parser-get file-config-data "Desktop Entry" "Type"))
+                   (exec (string-trim (replace-regexp-in-string
+                                       "%[a-zA-Z]" "" (config-parser-get
+                                                       file-config-data "Desktop Entry" "Exec") t)))
+                   (categories (or (config-parser-get file-config-data "Desktop Entry" "Categories")
+                                   ""))
+                   (name (config-parser-get file-config-data "Desktop Entry" "Name"))
+                   (comment (config-parser-get file-config-data "Desktop Entry" "Comment"))
+                   (icon (config-parser-get file-config-data "Desktop Entry" "Icon")))
+              (when (and exec (string-equal "Application" type))
+                `(defun ,(intern (concat "EXWM:" name)) ()
+                   (interactive)
+                   (start-process-shell-command ,exec nil ,exec)))))))))
+
   ;; Don't delete it
   (exwm-enable)
 
@@ -646,6 +673,22 @@ If DIR is t, then move up, otherwise move down."
     :config
     (start-menu-enable)
     (exwm-input-set-key (kbd "C-t ,")  'start-menu-popup))
+
+  (use-package dmenu
+    :ensure nil
+    :config
+    (setq dmenu-prompt-string "dmenu: ")
+    (exwm-input-set-key (kbd "C-t c") 'dmenu))
+
+  (use-package switch-window
+    :bind (("C-x o" . switch-window)
+           ("C-x 1" . switch-window-then-maximize)
+           ("C-x 2" . switch-window-then-split-below)
+           ("C-x 3" . switch-window-then-split-right)
+           ("C-x 0" . switch-window-then-delete))
+    :config
+    (setq switch-window-increase 8)
+    (setq switch-window-shortcut-style 'qwerty))
 
   (use-package exwm-systemtray
     :ensure nil
