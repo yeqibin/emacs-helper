@@ -248,13 +248,12 @@ if matched window can't be found, run shell command `cmd'."
                      (or exwm-class-name
                          exwm-instance-name
                          exwm-title))
-            (push
-             (eh-exwm/create-mode-line-button
-              (concat "[" (or exwm-instance-name exwm-title exwm-class-name) "]")
-              `(progn (switch-to-buffer ,(buffer-name))
-                      (eh-exwm/update-mode-line))
-              '(eh-exwm/kill-buffer))
-             buffer-buttons))))
+            (push (eh-exwm/create-mode-line-button
+                   (concat "[" (or exwm-instance-name exwm-title exwm-class-name) "]")
+                   `(progn (switch-to-buffer ,(buffer-name))
+                           (eh-exwm/update-mode-line))
+                   '(eh-exwm/kill-buffer))
+                  buffer-buttons))))
       buffer-buttons))
 
   (defun eh-exwm/create-mode-line ()
