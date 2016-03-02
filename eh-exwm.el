@@ -254,8 +254,8 @@ if matched window can't be found, run shell command `cmd'."
             (setq button-name
                   (cond ((and (< (length exwm-title) 15)
                               (> (length exwm-title) 1)) exwm-title)
-                        (exwm-instance-name exwm-instance-name)
-                        (exwm-class-name exwm-class-name)))
+                        (exwm-class-name exwm-class-name)
+                        (exwm-instance-name exwm-instance-name)))
             (push (eh-exwm/create-mode-line-button
                    (concat "[" button-name "]")
                    `(progn (switch-to-buffer ,(buffer-name))
