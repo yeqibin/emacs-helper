@@ -252,10 +252,10 @@ if matched window can't be found, run shell command `cmd'."
                          exwm-instance-name
                          exwm-title))
             (setq button-name
-                  (cond ((and (< (length exwm-title) 15)
-                              (> (length exwm-title) 1)) exwm-title)
-                        (exwm-class-name exwm-class-name)
-                        (exwm-instance-name exwm-instance-name)))
+                  (cond ((and (> (length exwm-title) 0)
+                              (< (length exwm-title) 20)) exwm-title)
+                        (exwm-instance-name exwm-instance-name)
+                        (exwm-class-name exwm-class-name)))
             (push (eh-exwm/create-mode-line-button
                    (concat "[" button-name "]")
                    `(progn (switch-to-buffer ,(buffer-name))
@@ -333,6 +333,8 @@ if matched window can't be found, run shell command `cmd'."
     (eh-exwm/update-mode-line))
 
   (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-mode-line)
+  (add-hook 'exwm-update-class-hook  #'eh-exwm/update-mode-line)
+  (add-hook 'exwm-update-title-hook  #'eh-exwm/update-mode-line)
 
   (defun eh-exwm/floating-window-resize (event &optional scale)
     (let* ((frame (window-frame (car (car (cdr event)))))
