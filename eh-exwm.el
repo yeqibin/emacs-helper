@@ -249,7 +249,7 @@ if matched window can't be found, run shell command `cmd'."
              (eh-exwm/create-mode-line-button
               (concat "[" (or exwm-instance-name exwm-title exwm-class-name) "]")
               `(switch-to-buffer ,(buffer-name))
-              '(kill-buffer))
+              '(eh-exwm/kill-buffer))
              buffer-buttons))))
       buffer-buttons))
 
@@ -259,7 +259,7 @@ if matched window can't be found, run shell command `cmd'."
             (,(eh-exwm/create-mode-line-button
                "[E]" '(eh-exwm/reset-mode-line) '(start-menu-popup))
              ,(eh-exwm/create-mode-line-button
-               "[X]" '(kill-buffer) '(kill-buffer))
+               "[X]" '(eh-exwm/kill-buffer) '(eh-exwm/kill-buffer))
              ,(eh-exwm/create-mode-line-button
                " - " nil nil nil t)
              ,(eh-exwm/create-mode-line-button
@@ -279,7 +279,7 @@ if matched window can't be found, run shell command `cmd'."
              ,(eh-exwm/create-mode-line-button
                "[+]" '(delete-other-windows) '(delete-other-windows))
              ,(eh-exwm/create-mode-line-button
-               "[X]" '(kill-buffer) '(kill-buffer))
+               "[X]" '(eh-exwm/kill-buffer) '(eh-exwm/kill-buffer))
              " -- "
              ,@eh-exwm/mode-line-shortcuts
              ":"
