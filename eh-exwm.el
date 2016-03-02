@@ -114,6 +114,7 @@
     `(:eval (propertize
              ,string
              'face 'mode-line-buffer-id
+             'help-echo ""
              'mouse-face 'mode-line-highlight
              'local-map
              (let ((map (make-sparse-keymap)))
