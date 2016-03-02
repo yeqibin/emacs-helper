@@ -242,6 +242,10 @@ if matched window can't be found, run shell command `cmd'."
   (defun eh-exwm/create-taskbar-buttons ()
     (let ((buffers (buffer-list))
           buffer-buttons)
+      (setq buffers (sort buffers
+                          #'(lambda (x y)
+                              (string< (buffer-name x)
+                                       (buffer-name y)))))
       (dolist (buffer buffers)
         (with-current-buffer buffer
           (when (and (equal major-mode 'exwm-mode)
