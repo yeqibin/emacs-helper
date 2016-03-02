@@ -84,7 +84,7 @@
   (setq use-dialog-box nil)
 
   ;; eh-exwm own variables
-  (defvar eh-exwm/mode-line-shortcuts nil)
+  (defvar eh-exwm/shortcuts nil)
   (defvar eh-exwm/mode-line-active-p nil)
   (defvar eh-exwm/shortcuts-file "~/.emacs.d/eh-exwm/exwm-shortcuts.el")
 
@@ -186,12 +186,12 @@ if matched window can't be found, run shell command `cmd'."
              name
              `(eh-exwm/jump-or-exec ,regexp ,cmd ,shortcut-name t)
              `(kill-buffer)
-             `(eh-exwm/delete-mode-line-shortcut ,name))
-            eh-exwm/mode-line-shortcuts))
+             `(eh-exwm/delete-shortcut ,name))
+            eh-exwm/shortcuts))
 
-    (setq eh-exwm/mode-line-shortcuts
+    (setq eh-exwm/shortcuts
           (cl-delete-duplicates
-           eh-exwm/mode-line-shortcuts
+           eh-exwm/shortcuts
            :test #'(lambda (x y)
                      (equal (nth 1 (cadr x))
                             (nth 1 (cadr y)))))))
@@ -201,22 +201,22 @@ if matched window can't be found, run shell command `cmd'."
          (stringp string)
          (string-match-p regexp string)))
 
-  (defun eh-exwm/delete-mode-line-shortcut (button-name)
-    (setq eh-exwm/mode-line-shortcuts
+  (defun eh-exwm/delete-shortcut (button-name)
+    (setq eh-exwm/shortcuts
           (cl-remove-if
            #'(lambda (x)
                (equal button-name (nth 1 (cadr x))))
-           eh-exwm/mode-line-shortcuts))
-    (eh-exwm/save-mode-line-shortcuts)
+           eh-exwm/shortcuts))
+    (eh-exwm/save-shortcuts)
     (eh-exwm/update-mode-line))
 
-  (defun eh-exwm/clean-mode-line-shortcuts ()
+  (defun eh-exwm/clean-shortcuts ()
     (interactive)
-    (setq eh-exwm/mode-line-shortcuts nil)
-    (eh-exwm/save-mode-line-shortcuts)
+    (setq eh-exwm/shortcuts nil)
+    (eh-exwm/save-shortcuts)
     (eh-exwm/update-mode-line))
 
-  (defun eh-exwm/save-mode-line-shortcuts ()
+  (defun eh-exwm/save-shortcuts ()
     (interactive)
     (message "Save eh-exwm shortcuts to \"%s\"" eh-exwm/shortcuts-file)
     (unless (file-directory-p
@@ -224,31 +224,35 @@ if matched window can't be found, run shell command `cmd'."
       (make-directory (file-name-directory eh-exwm/shortcuts-file) t))
     (with-temp-buffer
       (erase-buffer)
-      (cl-prettyprint eh-exwm/mode-line-shortcuts)
+      (cl-prettyprint eh-exwm/shortcuts)
       (write-file eh-exwm/shortcuts-file)))
 
-  (defun eh-exwm/load-mode-line-shortcuts ()
+  (defun eh-exwm/load-shortcuts ()
     (interactive)
     (message "Load eh-exwm shortcuts from \"%s\"" eh-exwm/shortcuts-file)
     (with-temp-buffer
       (erase-buffer)
       (insert-file-contents eh-exwm/shortcuts-file)
-      (setq eh-exwm/mode-line-shortcuts
+      (setq eh-exwm/shortcuts
             (read (current-buffer)))))
 
-  (add-hook 'kill-emacs-hook #'eh-exwm/save-mode-line-shortcuts)
-  (add-hook 'emacs-startup-hook #'eh-exwm/load-mode-line-shortcuts)
+  (add-hook 'kill-emacs-hook #'eh-exwm/save-shortcuts)
+  (add-hook 'emacs-startup-hook #'eh-exwm/load-shortcuts)
 
-  (defun eh-exwm/create-buffer-buttons ()
+  (defun eh-exwm/create-taskbar-buttons ()
     (let ((buffers (buffer-list))
           buffer-buttons)
       (dolist (buffer buffers)
         (with-current-buffer buffer
-          (when (equal major-mode 'exwm-mode)
+          (when (and (equal major-mode 'exwm-mode)
+                     (or exwm-class-name
+                         exwm-instance-name
+                         exwm-title))
             (push
              (eh-exwm/create-mode-line-button
               (concat "[" (or exwm-instance-name exwm-title exwm-class-name) "]")
-              `(switch-to-buffer ,(buffer-name))
+              `(progn (switch-to-buffer ,(buffer-name))
+                      (eh-exwm/update-mode-line))
               '(eh-exwm/kill-buffer))
              buffer-buttons))))
       buffer-buttons))
@@ -281,9 +285,8 @@ if matched window can't be found, run shell command `cmd'."
              ,(eh-exwm/create-mode-line-button
                "[X]" '(eh-exwm/kill-buffer) '(eh-exwm/kill-buffer))
              " -- "
-             ,@eh-exwm/mode-line-shortcuts
-             ":"
-             ,@(eh-exwm/create-buffer-buttons)
+             ,@(or (eh-exwm/create-taskbar-buttons)
+                   eh-exwm/shortcuts)
              " -- "
              ,(eh-exwm/create-mode-line-button
                "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
