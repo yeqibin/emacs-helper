@@ -85,6 +85,7 @@
 
   ;; eh-exwm own variables
   (defvar eh-exwm/shortcuts nil)
+  (defvar eh-exwm/taskbar nil)
   (defvar eh-exwm/mode-line-active-p nil)
   (defvar eh-exwm/shortcuts-file "~/.emacs.d/eh-exwm/exwm-shortcuts.el")
 
@@ -239,31 +240,6 @@ if matched window can't be found, run shell command `cmd'."
   (add-hook 'kill-emacs-hook #'eh-exwm/save-shortcuts)
   (add-hook 'emacs-startup-hook #'eh-exwm/load-shortcuts)
 
-  (defun eh-exwm/create-taskbar-buttons ()
-    (let (buffers buffer-buttons button-name)
-      (setq buffers (sort (buffer-list)
-                          #'(lambda (x y)
-                              (string> (buffer-name x)
-                                       (buffer-name y)))))
-      (dolist (buffer buffers)
-        (with-current-buffer buffer
-          (when (and (equal major-mode 'exwm-mode)
-                     (or exwm-class-name
-                         exwm-instance-name
-                         exwm-title))
-            (setq button-name
-                  (cond ((and (> (length exwm-title) 0)
-                              (< (length exwm-title) 20)) exwm-title)
-                        (exwm-instance-name exwm-instance-name)
-                        (exwm-class-name exwm-class-name)))
-            (push (eh-exwm/create-mode-line-button
-                   (concat "[" button-name "]")
-                   `(progn (switch-to-buffer ,(buffer-name))
-                           (eh-exwm/update-mode-line))
-                   '(eh-exwm/kill-buffer))
-                  buffer-buttons))))
-      buffer-buttons))
-
   (defun eh-exwm/create-mode-line ()
     (setq mode-line-format
           `(exwm--floating-frame
@@ -292,8 +268,7 @@ if matched window can't be found, run shell command `cmd'."
              ,(eh-exwm/create-mode-line-button
                "[X]" '(eh-exwm/kill-buffer) '(eh-exwm/kill-buffer))
              " -- "
-             ,@(or (eh-exwm/create-taskbar-buttons)
-                   eh-exwm/shortcuts)
+             ,@(or eh-exwm/taskbar eh-exwm/shortcuts)
              " -- "
              ,(eh-exwm/create-mode-line-button
                "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
@@ -327,14 +302,48 @@ if matched window can't be found, run shell command `cmd'."
             (eh-exwm/create-mode-line)
           (eh-exwm/reset-mode-line)))))
 
-  (defun eh-exwm/kill-buffer ()
-    (interactive)
-    (kill-buffer)
+  (defun eh-exwm/update-taskbar ()
+    (setq eh-exwm/taskbar
+          (eh-exwm/create-taskbar (buffer-list)))
     (eh-exwm/update-mode-line))
 
-  (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-mode-line)
-  (add-hook 'exwm-update-class-hook  #'eh-exwm/update-mode-line)
-  (add-hook 'exwm-update-title-hook  #'eh-exwm/update-mode-line)
+  (defun eh-exwm/create-taskbar (buffer-list)
+    (let (buffers taskbar-buttons button-name)
+      (setq buffers (sort buffer-list
+                          #'(lambda (x y)
+                              (string> (buffer-name x)
+                                       (buffer-name y)))))
+      (dolist (buffer buffers)
+        (with-current-buffer buffer
+          (when (and (equal major-mode 'exwm-mode)
+                     (or exwm-class-name
+                         exwm-instance-name
+                         exwm-title))
+            (setq button-name
+                  (cond ((and (> (length exwm-title) 0)
+                              (< (length exwm-title) 20)) exwm-title)
+                        (exwm-instance-name exwm-instance-name)
+                        (exwm-class-name exwm-class-name)))
+            (push (eh-exwm/create-mode-line-button
+                   (concat "[" button-name "]")
+                   `(progn (switch-to-buffer ,(buffer-name))
+                           (eh-exwm/update-taskbar))
+                   '(eh-exwm/kill-buffer))
+                  taskbar-buttons))))
+      taskbar-buttons))
+
+  (defun eh-exwm/kill-buffer ()
+    (interactive)
+    (setq eh-exwm/taskbar
+          (eh-exwm/create-taskbar
+           (remove (current-buffer)
+                   (buffer-list))))
+    (eh-exwm/update-mode-line)
+    (kill-buffer))
+
+  (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-taskbar)
+  (add-hook 'exwm-update-class-hook  #'eh-exwm/update-taskbar)
+  (add-hook 'exwm-update-title-hook  #'eh-exwm/update-taskbar)
 
   (defun eh-exwm/floating-window-resize (event &optional scale)
     (let* ((frame (window-frame (car (car (cdr event)))))
