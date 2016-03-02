@@ -243,7 +243,7 @@ if matched window can't be found, run shell command `cmd'."
     (let (buffers buffer-buttons button-name)
       (setq buffers (sort (buffer-list)
                           #'(lambda (x y)
-                              (string< (buffer-name x)
+                              (string> (buffer-name x)
                                        (buffer-name y)))))
       (dolist (buffer buffers)
         (with-current-buffer buffer
