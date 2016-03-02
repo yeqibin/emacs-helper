@@ -240,9 +240,8 @@ if matched window can't be found, run shell command `cmd'."
   (add-hook 'emacs-startup-hook #'eh-exwm/load-shortcuts)
 
   (defun eh-exwm/create-taskbar-buttons ()
-    (let ((buffers (buffer-list))
-          buffer-buttons)
-      (setq buffers (sort buffers
+    (let (buffers buffer-buttons button-name)
+      (setq buffers (sort (buffer-list)
                           #'(lambda (x y)
                               (string< (buffer-name x)
                                        (buffer-name y)))))
@@ -252,8 +251,13 @@ if matched window can't be found, run shell command `cmd'."
                      (or exwm-class-name
                          exwm-instance-name
                          exwm-title))
+            (setq button-name
+                  (cond ((and (< (length exwm-title) 15)
+                              (> (length exwm-title) 1)) exwm-title)
+                        (exwm-instance-name exwm-instance-name)
+                        (exwm-class-name exwm-class-name)))
             (push (eh-exwm/create-mode-line-button
-                   (concat "[" (or exwm-instance-name exwm-title exwm-class-name) "]")
+                   (concat "[" button-name "]")
                    `(progn (switch-to-buffer ,(buffer-name))
                            (eh-exwm/update-mode-line))
                    '(eh-exwm/kill-buffer))
