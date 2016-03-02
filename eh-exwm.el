@@ -240,41 +240,48 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/create-mode-line ()
     (setq mode-line-format
-          `(,(eh-exwm/create-mode-line-shortcut
-              "[E]" '(eh-exwm/reset-mode-line) '(start-menu-popup))
-            (exwm--floating-frame
-             nil ,(eh-exwm/create-mode-line-shortcut
-                   "[+]" '(delete-other-windows) '(delete-other-windows)))
-            ,(eh-exwm/create-mode-line-shortcut
-              "[X]" '(kill-buffer) '(kill-buffer))
-            ,(eh-exwm/create-mode-line-shortcut
-              " -- " nil nil nil t)
-            ,@eh-exwm/mode-line-shortcuts
-            ":"
-            ,(eh-exwm/create-mode-line-shortcut
-              "[All]" '(buffer-menu) '(buffer-menu))
-            ,(eh-exwm/create-mode-line-shortcut
-              " -- " nil nil nil t)
-            ,(eh-exwm/create-mode-line-shortcut
-              "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
-            (exwm--floating-frame
+          `(exwm--floating-frame
+            (,(eh-exwm/create-mode-line-shortcut
+               "[E]" '(eh-exwm/reset-mode-line) '(start-menu-popup))
              ,(eh-exwm/create-mode-line-shortcut
-               "[_]" '(exwm-floating-hide) '(exwm-floating-hide)))
-            (exwm--floating-frame
-             nil ,(eh-exwm/create-mode-line-shortcut
-                   "[-]" '(split-window-below) '(split-window-below)))
-            (exwm--floating-frame
-             nil ,(eh-exwm/create-mode-line-shortcut
-                   "[|]" '(split-window-right) '(split-window-right)))
-            (exwm--floating-frame
+               "[X]" '(kill-buffer) '(kill-buffer))
+             ,(eh-exwm/create-mode-line-shortcut
+               " - " nil nil nil t)
+             ,(eh-exwm/create-mode-line-shortcut
+               "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
+             ,(eh-exwm/create-mode-line-shortcut
+               "[_]" '(exwm-floating-hide) '(exwm-floating-hide))
              ,(eh-exwm/create-mode-line-shortcut
                "[Zoom]" '(eh-exwm/floating-window-resize event 0.75)
-               '(eh-exwm/floating-window-resize event 0.5)))
-            " -:"
-            mode-line-mule-info
-            "- "
-            ,(eh-exwm/create-mode-line-shortcut
-              (make-string 200 ?-) nil nil nil t)))
+               '(eh-exwm/floating-window-resize event 0.5))
+             " -:"
+             mode-line-mule-info
+             "- "
+             ,(eh-exwm/create-mode-line-shortcut
+               (make-string 200 ?-) nil nil nil t))
+            (,(eh-exwm/create-mode-line-shortcut
+               "[E]" '(eh-exwm/reset-mode-line) '(start-menu-popup))
+             ,(eh-exwm/create-mode-line-shortcut
+               "[+]" '(delete-other-windows) '(delete-other-windows))
+             ,(eh-exwm/create-mode-line-shortcut
+               "[X]" '(kill-buffer) '(kill-buffer))
+             " -- "
+             ,@eh-exwm/mode-line-shortcuts
+             ":"
+             ,(eh-exwm/create-mode-line-shortcut
+               "[All]" '(buffer-menu) '(buffer-menu))
+             " -- "
+             ,(eh-exwm/create-mode-line-shortcut
+               "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
+             ,(eh-exwm/create-mode-line-shortcut
+               "[-]" '(split-window-below) '(split-window-below))
+             ,(eh-exwm/create-mode-line-shortcut
+               "[|]" '(split-window-right) '(split-window-right))
+             " -:"
+             mode-line-mule-info
+             "- "
+             ,(eh-exwm/create-mode-line-shortcut
+               (make-string 200 ?-) nil nil nil t))))
     (setq eh-exwm/mode-line-active-p t)
     (force-mode-line-update))
 
