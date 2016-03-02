@@ -107,9 +107,9 @@
                           (string= "gimp" exwm-instance-name))
                   (exwm-workspace-rename-buffer (concat "Exwm:" exwm-title)))))
 
-  (defun eh-exwm/create-mode-line-shortcut (string &optional mouse-1-action
-                                                   mouse-3-action mouse-2-action
-                                                   active-down-mouse)
+  (defun eh-exwm/create-mode-line-button (string &optional mouse-1-action
+                                                 mouse-3-action mouse-2-action
+                                                 active-down-mouse)
     "Create clickable shortcut's code which is used by mode-line-format."
     `(:eval (propertize
              ,string
@@ -182,7 +182,7 @@ if matched window can't be found, run shell command `cmd'."
         (start-process-shell-command cmd nil cmd)))
 
     (let ((name (format "[%s]" (or shortcut-name regexp))))
-      (push (eh-exwm/create-mode-line-shortcut
+      (push (eh-exwm/create-mode-line-button
              name
              `(eh-exwm/jump-or-exec ,regexp ,cmd ,shortcut-name t)
              `(kill-buffer)
@@ -239,55 +239,68 @@ if matched window can't be found, run shell command `cmd'."
   (add-hook 'kill-emacs-hook #'eh-exwm/save-mode-line-shortcuts)
   (add-hook 'emacs-startup-hook #'eh-exwm/load-mode-line-shortcuts)
 
+  (defun eh-exwm/create-buffer-buttons ()
+    (let ((buffers (buffer-list))
+          buffer-buttons)
+      (dolist (buffer buffers)
+        (with-current-buffer buffer
+          (when (equal major-mode 'exwm-mode)
+            (push
+             (eh-exwm/create-mode-line-button
+              (concat "[" (or exwm-instance-name exwm-title exwm-class-name) "]")
+              `(switch-to-buffer ,(buffer-name))
+              '(kill-buffer))
+             buffer-buttons))))
+      buffer-buttons))
+
   (defun eh-exwm/create-mode-line ()
     (setq mode-line-format
           `(exwm--floating-frame
-            (,(eh-exwm/create-mode-line-shortcut
+            (,(eh-exwm/create-mode-line-button
                "[E]" '(eh-exwm/reset-mode-line) '(start-menu-popup))
-             ,(eh-exwm/create-mode-line-shortcut
+             ,(eh-exwm/create-mode-line-button
                "[X]" '(kill-buffer) '(kill-buffer))
-             ,(eh-exwm/create-mode-line-shortcut
+             ,(eh-exwm/create-mode-line-button
                " - " nil nil nil t)
-             ,(eh-exwm/create-mode-line-shortcut
+             ,(eh-exwm/create-mode-line-button
                "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
-             ,(eh-exwm/create-mode-line-shortcut
+             ,(eh-exwm/create-mode-line-button
                "[_]" '(exwm-floating-hide) '(exwm-floating-hide))
-             ,(eh-exwm/create-mode-line-shortcut
+             ,(eh-exwm/create-mode-line-button
                "[Zoom]" '(eh-exwm/floating-window-resize event 0.75)
                '(eh-exwm/floating-window-resize event 0.5))
              " -:"
              mode-line-mule-info
              "- "
-             ,(eh-exwm/create-mode-line-shortcut
+             ,(eh-exwm/create-mode-line-button
                (make-string 200 ?-) nil nil nil t))
-            (,(eh-exwm/create-mode-line-shortcut
+            (,(eh-exwm/create-mode-line-button
                "[E]" '(eh-exwm/reset-mode-line) '(start-menu-popup))
-             ,(eh-exwm/create-mode-line-shortcut
+             ,(eh-exwm/create-mode-line-button
                "[+]" '(delete-other-windows) '(delete-other-windows))
-             ,(eh-exwm/create-mode-line-shortcut
+             ,(eh-exwm/create-mode-line-button
                "[X]" '(kill-buffer) '(kill-buffer))
              " -- "
              ,@eh-exwm/mode-line-shortcuts
              ":"
-             ,(eh-exwm/create-mode-line-shortcut
-               "[All]" '(buffer-menu) '(buffer-menu))
+             ,@(eh-exwm/create-buffer-buttons)
              " -- "
-             ,(eh-exwm/create-mode-line-shortcut
+             ,(eh-exwm/create-mode-line-button
                "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
-             ,(eh-exwm/create-mode-line-shortcut
+             ,(eh-exwm/create-mode-line-button
                "[-]" '(split-window-below) '(split-window-below))
-             ,(eh-exwm/create-mode-line-shortcut
+             ,(eh-exwm/create-mode-line-button
                "[|]" '(split-window-right) '(split-window-right))
              " -:"
              mode-line-mule-info
              "- "
-             ,(eh-exwm/create-mode-line-shortcut
+             ,(eh-exwm/create-mode-line-button
                (make-string 200 ?-) nil nil nil t))))
     (setq eh-exwm/mode-line-active-p t)
     (force-mode-line-update))
 
   (setq-default mode-line-format
-                `(,(eh-exwm/create-mode-line-shortcut
+                `(,(eh-exwm/create-mode-line-button
                     "[E]" '(eh-exwm/create-mode-line) '(start-menu-popup))
                   ,(default-value 'mode-line-format)))
 
@@ -303,6 +316,11 @@ if matched window can't be found, run shell command `cmd'."
         (if (eq major-mode 'exwm-mode)
             (eh-exwm/create-mode-line)
           (eh-exwm/reset-mode-line)))))
+
+  (defun eh-exwm/kill-buffer ()
+    (interactive)
+    (kill-buffer)
+    (eh-exwm/update-mode-line))
 
   (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-mode-line)
 
