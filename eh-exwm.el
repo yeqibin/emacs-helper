@@ -334,7 +334,7 @@ if matched window can't be found, run shell command `cmd'."
                         (exwm-class-name exwm-class-name)))
             (push (eh-exwm/create-mode-line-button
                    (concat "[" button-name "]")
-                   `(progn (switch-to-buffer ,(buffer-name))
+                   `(progn (exwm-workspace-switch-to-buffer ,(buffer-name))
                            (eh-exwm/update-taskbar))
                    `(eh-exwm/kill-exwm-buffer ,(buffer-name)))
                   taskbar-buttons))))
@@ -357,7 +357,7 @@ if matched window can't be found, run shell command `cmd'."
                        (eq major-mode 'exwm-mode)))
                  (buffer-list)))))
       (when buffer
-        (switch-to-buffer buffer))))
+        (exwm-workspace-switch-to-buffer buffer))))
 
   (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-taskbar)
   (add-hook 'exwm-update-class-hook  #'eh-exwm/update-taskbar)
