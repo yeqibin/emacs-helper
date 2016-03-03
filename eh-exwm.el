@@ -98,6 +98,16 @@
   (setq exwm-floating-border-width 3)
   (setq exwm-floating-border-color "orange")
 
+  ;; All buffers created in EXWM mode are named "*EXWM*". You may want to change
+  ;; when a new window class name or title is available.
+  ;; it in `exwm-update-class-hook' and `exwm-update-title-hook', which are run
+  (add-hook 'exwm-update-class-hook #'eh-exwm/rename-exwm-buffer)
+  (add-hook 'exwm-update-title-hook #'eh-exwm/rename-exwm-buffer)
+
+  (defun eh-exwm/rename-exwm-buffer ()
+    (exwm-workspace-rename-buffer
+     (concat "Exwm:" (eh-exwm/return-new-name))))
+
   (defun eh-exwm/return-new-name ()
     (let* ((dict-alist eh-exwm/app-rename-alist)
            (prefer-name
@@ -342,18 +352,18 @@ if matched window can't be found, run shell command `cmd'."
                          exwm-title))
             (push (eh-exwm/create-mode-line-button
                    (concat "[" (eh-exwm/return-new-name) "]")
-                   `(progn (exwm-workspace-switch-to-buffer ,(buffer-name))
+                   `(progn (exwm-workspace-switch-to-buffer ,buffer)
                            (eh-exwm/update-taskbar))
-                   `(eh-exwm/kill-exwm-buffer ,(buffer-name)))
+                   `(eh-exwm/kill-exwm-buffer ,buffer))
                   taskbar-buttons))))
       taskbar-buttons))
 
   (defun eh-exwm/kill-exwm-buffer (&optional buffer-or-name)
-    (let ((buf (or buffer-or-name
-                   (current-buffer))))
-      (with-current-buffer buf
+    (let ((buffer (or buffer-or-name
+                      (current-buffer))))
+      (with-current-buffer buffer
         (if (eq major-mode 'exwm-mode)
-            (progn (kill-buffer buf)
+            (progn (kill-buffer buffer)
                    (eh-exwm/next-exwm-buffer))
           (message "This buffer is not a exwm buffer!")))))
 
@@ -368,22 +378,9 @@ if matched window can't be found, run shell command `cmd'."
         (exwm-workspace-switch-to-buffer buffer))))
 
   (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-taskbar)
+  (add-hook 'exwm-update-class-hook #'eh-exwm/update-taskbar)
+  (add-hook 'exwm-update-title-hook #'eh-exwm/update-taskbar)
   (add-hook 'kill-buffer-hook #'(lambda () (eh-exwm/update-taskbar t)))
-
-  ;; All buffers created in EXWM mode are named "*EXWM*". You may want to change
-  ;; when a new window class name or title is available.
-  ;; it in `exwm-update-class-hook' and `exwm-update-title-hook', which are run
-  (add-hook 'exwm-update-class-hook
-            #'(lambda ()
-                (exwm-workspace-rename-buffer
-                 (concat "Exwm:" (eh-exwm/return-new-name)))
-                (eh-exwm/update-taskbar)))
-
-  (add-hook 'exwm-update-title-hook
-            #'(lambda ()
-                (exwm-workspace-rename-buffer
-                 (concat "Exwm:" (eh-exwm/return-new-name)))
-                (eh-exwm/update-taskbar)))
 
   (defun eh-exwm/floating-window-resize (event &optional scale)
     (let* ((frame (window-frame (car (car (cdr event)))))
