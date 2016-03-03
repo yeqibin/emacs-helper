@@ -329,7 +329,7 @@ if matched window can't be found, run shell command `cmd'."
                          exwm-title))
             (setq button-name
                   (cond ((and (> (length exwm-title) 0)
-                              (< (length exwm-title) 20)) exwm-title)
+                              (< (length exwm-title) 10)) exwm-title)
                         (exwm-instance-name exwm-instance-name)
                         (exwm-class-name exwm-class-name)))
             (push (eh-exwm/create-mode-line-button
@@ -509,7 +509,7 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/x-terminal-emulator ()
     (interactive)
-    (eh-exwm/jump-or-exec "default-terminal" "xfce4-terminal -T default-terminal" "终"))
+    (eh-exwm/jump-or-exec "default-terminal" "xfce4-terminal -T Term" "终"))
 
   (defun eh-exwm/launch-new-terminal ()
     (interactive)
