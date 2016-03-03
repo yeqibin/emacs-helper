@@ -88,6 +88,11 @@
   (defvar eh-exwm/taskbar nil)
   (defvar eh-exwm/mode-line-active-p nil)
   (defvar eh-exwm/shortcuts-file "~/.emacs.d/eh-exwm/exwm-shortcuts.el")
+  (defvar eh-exwm/taskbar-rename-alist nil)
+
+  (setq eh-exwm/taskbar-rename-alist
+        '(("navigator" . "Firefox")
+          ("virtual[ ]*box" . "VirtualBox")))
 
   (setq exwm-floating-border-width 3)
   (setq exwm-floating-border-color "orange")
@@ -316,7 +321,7 @@ if matched window can't be found, run shell command `cmd'."
     (eh-exwm/update-mode-line))
 
   (defun eh-exwm/create-taskbar (buffer-list)
-    (let (buffers taskbar-buttons button-name)
+    (let (buffers taskbar-buttons button-name button-prefer-name)
       (setq buffers (sort buffer-list
                           #'(lambda (x y)
                               (string< (buffer-name y)
@@ -327,8 +332,13 @@ if matched window can't be found, run shell command `cmd'."
                      (or exwm-class-name
                          exwm-instance-name
                          exwm-title))
+            (setq button-prefer-name
+                  (or (eh-exwm/taskbar-rename-item exwm-title)
+                      (eh-exwm/taskbar-rename-item exwm-instance-name)
+                      (eh-exwm/taskbar-rename-item exwm-class-name)))
             (setq button-name
-                  (cond ((and (> (length exwm-title) 0)
+                  (cond (button-prefer-name button-prefer-name)
+                        ((and (> (length exwm-title) 0)
                               (< (length exwm-title) 10)) exwm-title)
                         (exwm-instance-name exwm-instance-name)
                         (exwm-class-name exwm-class-name)))
@@ -339,6 +349,16 @@ if matched window can't be found, run shell command `cmd'."
                    `(eh-exwm/kill-exwm-buffer ,(buffer-name)))
                   taskbar-buttons))))
       taskbar-buttons))
+
+  (defun eh-exwm/taskbar-rename-item (old-name)
+    (let ((alist eh-exwm/taskbar-rename-alist)
+          (case-fold-search t)
+          new-name)
+      (dolist (x eh-exwm/taskbar-rename-alist)
+        (when (eh-exwm/string-match-p (car x) old-name)
+          (setq alist nil)
+          (setq new-name (cdr x))))
+      new-name))
 
   (defun eh-exwm/kill-exwm-buffer (&optional buffer-or-name)
     (let ((buf (or buffer-or-name
