@@ -186,7 +186,7 @@ if matched window can't be found, run shell command `cmd'."
       (push (eh-exwm/create-mode-line-button
              name
              `(eh-exwm/jump-or-exec ,regexp ,cmd ,shortcut-name t)
-             `(kill-buffer)
+             `(eh-exwm/jump-or-exec ,regexp ,cmd ,shortcut-name t)
              `(eh-exwm/delete-shortcut ,name))
             eh-exwm/shortcuts))
 
@@ -246,7 +246,7 @@ if matched window can't be found, run shell command `cmd'."
             (,(eh-exwm/create-mode-line-button
                "[E]" '(eh-exwm/reset-mode-line) '(start-menu-popup))
              ,(eh-exwm/create-mode-line-button
-               "[X]" '(kill-buffer) '(kill-buffer))
+               "[X]" '(eh-exwm/kill-exwm-buffer) '(eh-exwm/kill-exwm-buffer))
              ,(eh-exwm/create-mode-line-button
                " - " nil nil nil t)
              ,(eh-exwm/create-mode-line-button
@@ -266,7 +266,7 @@ if matched window can't be found, run shell command `cmd'."
              ,(eh-exwm/create-mode-line-button
                "[+]" '(delete-other-windows) '(delete-other-windows))
              ,(eh-exwm/create-mode-line-button
-               "[X]" '(kill-buffer) '(kill-buffer))
+               "[X]" '(eh-exwm/kill-exwm-buffer) '(eh-exwm/kill-exwm-buffer))
              " :"
              ,@(if (< (length eh-exwm/taskbar) 4)
                    `(,@eh-exwm/shortcuts
@@ -336,10 +336,18 @@ if matched window can't be found, run shell command `cmd'."
                    (concat "[" button-name "]")
                    `(progn (switch-to-buffer ,(buffer-name))
                            (eh-exwm/update-taskbar))
-                   `(progn (kill-buffer ,(buffer-name))
-                           (eh-exwm/next-exwm-buffer)))
+                   `(eh-exwm/kill-exwm-buffer ,(buffer-name)))
                   taskbar-buttons))))
       taskbar-buttons))
+
+  (defun eh-exwm/kill-exwm-buffer (&optional buffer-or-name)
+    (let ((buf (or buffer-or-name
+                   (current-buffer))))
+      (with-current-buffer buf
+        (if (eq major-mode 'exwm-mode)
+            (progn (kill-buffer buf)
+                   (eh-exwm/next-exwm-buffer))
+          (message "This buffer is not a exwm buffer!")))))
 
   (defun eh-exwm/next-exwm-buffer ()
     (let ((buffer
