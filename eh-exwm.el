@@ -117,9 +117,9 @@
             (or (eh-exwm/replace-string exwm-title dict-alist)
                 (eh-exwm/replace-string exwm-instance-name dict-alist)
                 (eh-exwm/replace-string exwm-class-name dict-alist))))
-      (cond (prefer-name prefer-name)
-            ((and (> (length exwm-title) 0)
+      (cond ((and (> (length exwm-title) 0)
                   (< (length exwm-title) 10)) exwm-title)
+            (prefer-name prefer-name)
             (exwm-instance-name exwm-instance-name)
             (exwm-class-name exwm-class-name))))
 
