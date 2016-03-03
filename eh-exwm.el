@@ -267,9 +267,13 @@ if matched window can't be found, run shell command `cmd'."
                "[+]" '(delete-other-windows) '(delete-other-windows))
              ,(eh-exwm/create-mode-line-button
                "[X]" '(kill-buffer) '(kill-buffer))
-             " -- "
-             ,@(or eh-exwm/taskbar eh-exwm/shortcuts)
-             " -- "
+             " :"
+             ,@(if (< (length eh-exwm/taskbar) 4)
+                   `(,@eh-exwm/shortcuts
+                     ,(when eh-exwm/taskbar "-")
+                     ,@eh-exwm/taskbar)
+                 eh-exwm/taskbar)
+             ": "
              ,(eh-exwm/create-mode-line-button
                "[F]" '(exwm-floating-toggle-floating) '(exwm-floating-toggle-floating))
              ,(eh-exwm/create-mode-line-button
@@ -315,8 +319,8 @@ if matched window can't be found, run shell command `cmd'."
     (let (buffers taskbar-buttons button-name)
       (setq buffers (sort buffer-list
                           #'(lambda (x y)
-                              (string> (buffer-name x)
-                                       (buffer-name y)))))
+                              (string< (buffer-name y)
+                                       (buffer-name x)))))
       (dolist (buffer buffers)
         (with-current-buffer buffer
           (when (and (equal major-mode 'exwm-mode)
@@ -332,9 +336,20 @@ if matched window can't be found, run shell command `cmd'."
                    (concat "[" button-name "]")
                    `(progn (switch-to-buffer ,(buffer-name))
                            (eh-exwm/update-taskbar))
-                   '(kill-buffer))
+                   `(progn (kill-buffer ,(buffer-name))
+                           (eh-exwm/next-exwm-buffer)))
                   taskbar-buttons))))
       taskbar-buttons))
+
+  (defun eh-exwm/next-exwm-buffer ()
+    (let ((buffer
+           (car (cl-remove-if-not
+                 #'(lambda (buf)
+                     (with-current-buffer buf
+                       (eq major-mode 'exwm-mode)))
+                 (buffer-list)))))
+      (when buffer
+        (switch-to-buffer buffer))))
 
   (add-hook 'exwm-manage-finish-hook #'eh-exwm/update-taskbar)
   (add-hook 'exwm-update-class-hook  #'eh-exwm/update-taskbar)
@@ -436,11 +451,11 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/firefox ()
     (interactive)
-    (eh-exwm/jump-or-exec "Iceweasel" "iceweasel" "Firefox"))
+    (eh-exwm/jump-or-exec "Iceweasel" "iceweasel" "网"))
 
   (defun eh-exwm/file-manager ()
     (interactive)
-    (eh-exwm/jump-or-exec "Nautilus" "nautilus --no-desktop" "Files"))
+    (eh-exwm/jump-or-exec "Nautilus" "nautilus --no-desktop" "文"))
 
   (defun eh-exwm/crossover ()
     (interactive)
@@ -486,7 +501,7 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/x-terminal-emulator ()
     (interactive)
-    (eh-exwm/jump-or-exec "default-terminal" "xfce4-terminal -T default-terminal" "Term"))
+    (eh-exwm/jump-or-exec "default-terminal" "xfce4-terminal -T default-terminal" "终"))
 
   (defun eh-exwm/launch-new-terminal ()
     (interactive)
