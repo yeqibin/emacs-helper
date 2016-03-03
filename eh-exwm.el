@@ -88,11 +88,12 @@
   (defvar eh-exwm/taskbar nil)
   (defvar eh-exwm/mode-line-active-p nil)
   (defvar eh-exwm/shortcuts-file "~/.emacs.d/eh-exwm/exwm-shortcuts.el")
-  (defvar eh-exwm/taskbar-rename-alist nil)
+  (defvar eh-exwm/app-rename-alist nil)
 
-  (setq eh-exwm/taskbar-rename-alist
+  (setq eh-exwm/app-rename-alist
         '(("navigator" . "Firefox")
-          ("virtual[ ]*box" . "VirtualBox")))
+          ("virtual[ ]*box" . "VirtualBox")
+          ("gimp" . "Gimp")))
 
   (setq exwm-floating-border-width 3)
   (setq exwm-floating-border-color "orange")
@@ -102,16 +103,34 @@
   ;; it in `exwm-update-class-hook' and `exwm-update-title-hook', which are run
   (add-hook 'exwm-update-class-hook
             #'(lambda ()
-                (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
-                            (string= "gimp" exwm-instance-name))
-                  (exwm-workspace-rename-buffer (concat "Exwm:" exwm-class-name)))))
+                (exwm-workspace-rename-buffer
+                 (concat "Exwm:" (eh-exwm/return-new-name)))))
 
   (add-hook 'exwm-update-title-hook
             #'(lambda ()
-                (when (or (not exwm-instance-name)
-                          (string-prefix-p "sun-awt-X11-" exwm-instance-name)
-                          (string= "gimp" exwm-instance-name))
-                  (exwm-workspace-rename-buffer (concat "Exwm:" exwm-title)))))
+                (exwm-workspace-rename-buffer
+                 (concat "Exwm:" (eh-exwm/return-new-name)))))
+
+  (defun eh-exwm/return-new-name ()
+    (let* ((dict-alist eh-exwm/app-rename-alist)
+           (prefer-name
+            (or (eh-exwm/replace-string exwm-title dict-alist)
+                (eh-exwm/replace-string exwm-instance-name dict-alist)
+                (eh-exwm/replace-string exwm-class-name dict-alist))))
+      (cond (prefer-name prefer-name)
+            ((and (> (length exwm-title) 0)
+                  (< (length exwm-title) 10)) exwm-title)
+            (exwm-instance-name exwm-instance-name)
+            (exwm-class-name exwm-class-name))))
+
+  (defun eh-exwm/replace-string (string dict-alist)
+    (let ((case-fold-search t)
+          new-string)
+      (dolist (x dict-alist)
+        (when (eh-exwm/string-match-p (car x) string)
+          (setq dict-alist nil)
+          (setq new-string (cdr x))))
+      new-string))
 
   (defun eh-exwm/create-mode-line-button (string &optional mouse-1-action
                                                  mouse-3-action mouse-2-action
@@ -321,7 +340,7 @@ if matched window can't be found, run shell command `cmd'."
     (eh-exwm/update-mode-line))
 
   (defun eh-exwm/create-taskbar (buffer-list)
-    (let (buffers taskbar-buttons button-name button-prefer-name)
+    (let (buffers taskbar-buttons)
       (setq buffers (sort buffer-list
                           #'(lambda (x y)
                               (string< (buffer-name y)
@@ -332,33 +351,13 @@ if matched window can't be found, run shell command `cmd'."
                      (or exwm-class-name
                          exwm-instance-name
                          exwm-title))
-            (setq button-prefer-name
-                  (or (eh-exwm/taskbar-rename-item exwm-title)
-                      (eh-exwm/taskbar-rename-item exwm-instance-name)
-                      (eh-exwm/taskbar-rename-item exwm-class-name)))
-            (setq button-name
-                  (cond (button-prefer-name button-prefer-name)
-                        ((and (> (length exwm-title) 0)
-                              (< (length exwm-title) 10)) exwm-title)
-                        (exwm-instance-name exwm-instance-name)
-                        (exwm-class-name exwm-class-name)))
             (push (eh-exwm/create-mode-line-button
-                   (concat "[" button-name "]")
+                   (concat "[" (eh-exwm/return-new-name) "]")
                    `(progn (exwm-workspace-switch-to-buffer ,(buffer-name))
                            (eh-exwm/update-taskbar))
                    `(eh-exwm/kill-exwm-buffer ,(buffer-name)))
                   taskbar-buttons))))
       taskbar-buttons))
-
-  (defun eh-exwm/taskbar-rename-item (old-name)
-    (let ((alist eh-exwm/taskbar-rename-alist)
-          (case-fold-search t)
-          new-name)
-      (dolist (x eh-exwm/taskbar-rename-alist)
-        (when (eh-exwm/string-match-p (car x) old-name)
-          (setq alist nil)
-          (setq new-name (cdr x))))
-      new-name))
 
   (defun eh-exwm/kill-exwm-buffer (&optional buffer-or-name)
     (let ((buf (or buffer-or-name
