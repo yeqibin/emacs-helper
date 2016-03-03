@@ -290,6 +290,8 @@ if matched window can't be found, run shell command `cmd'."
              ,(eh-exwm/create-mode-line-button
                "[+]" '(delete-other-windows) '(delete-other-windows))
              ,(eh-exwm/create-mode-line-button
+               "[D]" '(delete-window) '(delete-window))
+             ,(eh-exwm/create-mode-line-button
                "[X]" '(eh-exwm/kill-exwm-buffer) '(eh-exwm/kill-exwm-buffer))
              " :"
              ,@(if (< (length eh-exwm/taskbar) 4)
