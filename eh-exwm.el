@@ -93,7 +93,8 @@
   (setq eh-exwm/app-rename-alist
         '(("navigator" . "Firefox")
           ("virtual[ ]*box" . "VirtualBox")
-          ("gimp" . "Gimp")))
+          ("gimp" . "Gimp")
+          ("default-terminal" . "Term")))
 
   (setq exwm-floating-border-width 3)
   (setq exwm-floating-border-color "orange")
@@ -527,7 +528,7 @@ if matched window can't be found, run shell command `cmd'."
 
   (defun eh-exwm/x-terminal-emulator ()
     (interactive)
-    (eh-exwm/jump-or-exec "default-terminal" "xfce4-terminal -T Term" "终"))
+    (eh-exwm/jump-or-exec "default-terminal" "xfce4-terminal -T default-terminal" "终"))
 
   (defun eh-exwm/launch-new-terminal ()
     (interactive)
