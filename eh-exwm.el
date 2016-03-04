@@ -599,6 +599,7 @@ if matched window can't be found, run shell command `cmd'."
   (exwm-input-set-key (kbd "C-t fw") 'eh-exwm/winxp)
   (exwm-input-set-key (kbd "C-t w")  'exwm-workspace-switch)
   (exwm-input-set-key (kbd "C-t x")  'eh-exwm/x-terminal-emulator)
+  (exwm-input-set-key (kbd "C-t C-x")  'eh-exwm/launch-new-terminal)
   (exwm-input-set-key (kbd "C-t c")  'eh-exwm/run-shell-command-interactively)
 
   (exwm-input-set-key (kbd "C-t 1")  'eh-exwm/switch-to-1-workspace)
