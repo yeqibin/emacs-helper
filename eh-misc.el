@@ -47,11 +47,6 @@
     (use-package chinese-pyim-devtools
       :ensure nil)))
 
-;; exwm-x
-(use-package exwm-x
-  :config
-  (require 'exwm-x-example))
-
 ;; easy-lentic
 (use-package easy-lentic
   :ensure nil
