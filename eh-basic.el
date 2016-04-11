@@ -46,6 +46,9 @@
 (setq-default tab-width 4)
 (setq tab-width 4)
 
+;; 关闭 beep
+(setq visible-bell t)
+
 ;; Don't delete *scratch* buffer
 (defun eh-unkillable-scratch-buffer ()
   (if (string= (buffer-name (current-buffer)) "*scratch*")
