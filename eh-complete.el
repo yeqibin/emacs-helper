@@ -129,42 +129,6 @@
   (push '(counsel-describe-function . "") ivy-initial-inputs-alist)
   (push '(counsel-describe-variable . "") ivy-initial-inputs-alist)
 
-  (defun eh-ivy-return-recentf-index (dir)
-    (when (and (boundp 'recentf-list)
-               recentf-list)
-      (let ((files-list
-             (cl-subseq recentf-list
-                        0 (min (- (length recentf-list) 1) 20)))
-            (index 0))
-        (while files-list
-          (if (string-match-p dir (car files-list))
-              (setq files-list nil)
-            (setq index (+ index 1))
-            (setq files-list (cdr files-list))))
-        index)))
-
-  (defun eh-ivy-sort-file-function (x y)
-    (let* ((x (concat ivy--directory x))
-           (y (concat ivy--directory y))
-           (x-mtime (nth 5 (file-attributes x)))
-           (y-mtime (nth 5 (file-attributes y))))
-      (if (file-directory-p x)
-          (if (file-directory-p y)
-              (let ((x-recentf-index (eh-ivy-return-recentf-index x))
-                    (y-recentf-index (eh-ivy-return-recentf-index y)))
-                (if (and x-recentf-index y-recentf-index)
-                    ;; Directories is sorted by `recentf-list' index
-                    (< x-recentf-index y-recentf-index)
-                  (string< x y)))
-            t)
-        (if (file-directory-p y)
-            nil
-          ;; Files is sorted by mtime
-          (time-less-p y-mtime x-mtime)))))
-
-  (add-to-list 'ivy-sort-functions-alist
-               '(read-file-name-internal . eh-ivy-sort-file-function))
-
   (defun eh-open-typed-path (path)
     (let ((parent-directory
            (if (file-directory-p path)
@@ -187,10 +151,6 @@
 ;; company-mode
 (use-package company
   :config
-  (use-package chinese-pyim-company
-    :config
-    ;; 禁用 dabberv 中文补全
-    (setq pyim-company-complete-chinese-enable nil))
   (setq company-idle-delay 0.2)
   (setq company-minimum-prefix-length 2)
   (setq company-selection-wrap-around t)
@@ -218,6 +178,9 @@
   (setq company-frontends
         '(company-pseudo-tooltip-frontend
           company-echo-metadata-frontend))
+
+  ;; 禁用 dabberv 中文补全
+  (setq pyim-company-complete-chinese-enable nil)
 
   (global-set-key (kbd "M-/") 'company-complete)
   (define-key company-active-map (kbd "M-i") 'company-complete-selection)
