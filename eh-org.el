@@ -339,17 +339,14 @@
   (use-package cdlatex
     :ensure nil
     :config
-    (use-package texmathp
-      :ensure auctex
-      :config
-      (add-hook 'org-mode-hook 'turn-on-org-cdlatex)))
+    (add-hook 'org-mode-hook 'turn-on-org-cdlatex))
 
   ;; 开启自动断行
-  (add-hook 'org-mode-hook '(lambda ()
-                              (setq visual-line-fringe-indicators '(nil nil))
-                              (visual-line-mode)
-                              (if visual-line-mode
-                                  (setq word-wrap nil))))
+  (add-hook 'org-mode-hook #'(lambda ()
+                               (setq visual-line-fringe-indicators '(nil nil))
+                               (visual-line-mode)
+                               (if visual-line-mode
+                                   (setq word-wrap nil))))
 
   ;; export filter
   ;; (defun eh-convert-punctuation (text backend info)

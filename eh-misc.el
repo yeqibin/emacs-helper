@@ -96,12 +96,14 @@
   (use-package org
     :ensure nil)
   (use-package org-agenda
-   :ensure nil)
+    :ensure nil)
   (setq org-journal-dir "E:/doc/journal/")
   (setq org-journal-file-format "%Y%m%d.org")
   (setq org-agenda-files
-      (append (directory-files org-journal-dir t ".org$")
-              org-agenda-files))
+        (if (file-directory-p org-journal-dir)
+            (append (directory-files org-journal-dir t ".org$")
+                    org-agenda-files)
+          org-agenda-files))
   :bind
   (("C-c C-j" . org-journal-new-entry)))
 
