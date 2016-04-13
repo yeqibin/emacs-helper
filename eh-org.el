@@ -183,7 +183,7 @@
   (use-package ox-s5
     :ensure nil)
 
-  ;; org-contrib
+  ;; org-plus-contrib
   (use-package ox-extra
     :ensure nil
     :config
@@ -336,7 +336,14 @@
               (forward-line)))))))
 
   ;; 开启cdlatex
-  (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
+  (use-package cdlatex
+    :ensure nil
+    :config
+    (use-package texmathp
+      :ensure auctex
+      :config
+      (add-hook 'org-mode-hook 'turn-on-org-cdlatex)))
+
   ;; 开启自动断行
   (add-hook 'org-mode-hook '(lambda ()
                               (setq visual-line-fringe-indicators '(nil nil))
