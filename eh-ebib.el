@@ -34,7 +34,8 @@
 (use-package ebib
   :config
 
-  (use-package chinese-pyim)
+  (use-package chinese-pyim
+    :ensure nil)
   (use-package bibtex
     :ensure nil)
   (use-package eh-bibtex

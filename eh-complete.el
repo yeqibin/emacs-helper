@@ -37,19 +37,25 @@
   :config
 
   (use-package tramp
+    :ensure nil
     :config
     (setq tramp-default-method nil))
+
   (use-package org
+    :ensure nil
     :config
     (setq org-completion-use-ido t))
+
   (use-package ido-ubiquitous
     :config
     (setq ido-everywhere t)
     (ido-ubiquitous-mode 1))
+
   (use-package flx-ido
     :config
     (setq flx-ido-use-faces t)
     (flx-ido-mode 1))
+
   (use-package ido-vertical-mode
     :config
     (ido-vertical-mode 1))
