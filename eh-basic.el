@@ -203,6 +203,7 @@
 
 ;; Pinyin Input Method
 (use-package chinese-pyim
+  :ensure nil
   :config
   (setq default-input-method "chinese-pyim")
   ;; 使用双拼

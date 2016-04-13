@@ -33,6 +33,7 @@
 
 ;; eh-website
 (use-package org-webpage
+  :ensure nil
   :config
   ;; my website's owp config
   (use-package eh-website
