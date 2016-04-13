@@ -53,7 +53,6 @@
 
   (use-package bbdb-vcard)
   (use-package bbdb-csv-import)
-  (use-package bbdb-china)
 
   (use-package bbdb-android
     :config
