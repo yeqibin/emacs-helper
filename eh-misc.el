@@ -109,12 +109,10 @@
   (("C-c C-j" . org-journal-new-entry)))
 
 ;; ESS
-(use-package ess-site
-  :ensure ess
+(use-package ess
   :config
   (setq ess-eval-visibly-p nil)
-  (setq ess-ask-for-ess-directory nil)
-  (setq ess-use-auto-complete t))
+  (setq ess-ask-for-ess-directory nil))
 
 ;; aggressive-indent
 (use-package aggressive-indent)
