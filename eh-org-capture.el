@@ -68,14 +68,9 @@
 "
            :empty-lines 1)
           ("f" "firefox-org-capture" entry  (file+headline eh-org-note-file "Notes-from-web")
-           "** %?
-   :PROPERTIES:
-   :DATE: %u
-   :END:
-
+           "** %a
 %i
-
-原始链接: %a
+%?
 "
            :empty-lines 1)
 
