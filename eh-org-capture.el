@@ -131,7 +131,6 @@
                (setq truncate-lines nil)
                (org-capture goto keys)))))
       (make-frame `((name . ,eh-org-capture-frame-name)
-                    (window-system . x)
                     (width . 120)
                     (height . 15)))))
 
