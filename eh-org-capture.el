@@ -12,6 +12,14 @@
 ;;; Commentary:
 
 ;;  这个文件是tumashu个人专用的emacs配置文件，emacs中文用户可以参考。
+;;  使用方式：
+;;  1. 安装 [[https://github.com/nobuoka/AppLauncher][Firefox AppLauncher 扩展]]
+;;  2. 配置 AppLauncher
+;;     1. Name: org-capture
+;;     2. Path: /home/feng/emacs/bin/emacsclient
+;;     3. Args: --socket-name=sawfish-emacs-daemon
+;;              org-protocol://capture://f/&eurl;/&etitle;/&etext;
+;;     其中, "f" 代表 org-capture 使用 key 为 "f" 的模板
 
 ;;; License:
 
