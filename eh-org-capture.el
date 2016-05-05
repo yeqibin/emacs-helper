@@ -88,19 +88,6 @@
 
   (setq eh-org-capture-frame-name "tumashu-org-capture")
 
-  (defun eh-org-capture-clean-text (text)
-    (replace-regexp-in-string
-     "\\(\\cc\\) *\n *\\(\\cc\\)" "\\1\\2"
-     (replace-regexp-in-string
-      " +" " "
-      (replace-regexp-in-string
-       "\\(\\cc\\) +" "\\1"
-       (replace-regexp-in-string
-        "^ +\\(\\cc\\)" "\\1"
-        (replace-regexp-in-string
-         "\r" ""
-         text))))))
-
   (defun eh-org-capture-delete-frame (&rest args)
     "Close capture frame"
     (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
@@ -114,34 +101,33 @@
   (defun eh-org-capture (orig-fun &optional goto keys)
     "Create a new frame and run org-capture."
     (interactive)
-    (let ((after-make-frame-functions
-           (lambda (frame)
-             (progn
-               (select-frame frame)
-               (setq word-wrap nil)
-               (setq truncate-lines nil)
-               (funcall orig-fun goto keys)
-               (setq header-line-format
-                     (list "Capture buffer. "
-                           (propertize "Finish 'C-c C-c' "
-                                       'mouse-face 'mode-line-highlight
-                                       'keymap
-                                       (let ((map (make-sparse-keymap)))
-                                         (define-key map [header-line mouse-1] 'org-capture-finalize)
-                                         map))
-                           (propertize "refile 'C-c C-w' "
-                                       'mouse-face 'mode-line-highlight
-                                       'keymap
-                                       (let ((map (make-sparse-keymap)))
-                                         (define-key map [header-line mouse-1] 'org-capture-refile)
-                                         map))
-                           (propertize "abort 'C-c C-k' "
-                                       'mouse-face 'mode-line-highlight
-                                       'keymap
-                                       (let ((map (make-sparse-keymap)))
-                                         (define-key map [header-line mouse-1] 'org-capture-kill)
-                                         map))))))))
+    (let ((frame-window-system
+           (cond ((eq system-type 'darwin) 'ns)
+                 ((eq system-type 'gnu/linux) 'x)
+                 ((eq system-type 'windows-nt) 'w32)))
+          (after-make-frame-functions
+           #'(lambda (frame)
+               (progn
+                 (select-frame frame)
+                 (setq word-wrap nil)
+                 (setq truncate-lines nil)
+                 (funcall orig-fun goto keys)
+                 (setq header-line-format
+                       (list "Capture buffer. "
+                             (propertize (substitute-command-keys "Finish \\[org-capture-finalize], ")
+                                         'mouse-face 'mode-line-highlight
+                                         'keymap
+                                         (let ((map (make-sparse-keymap)))
+                                           (define-key map [header-line mouse-1] 'org-capture-finalize)
+                                           map))
+                             (propertize (substitute-command-keys "abort \\[org-capture-kill]. ")
+                                         'mouse-face 'mode-line-highlight
+                                         'keymap
+                                         (let ((map (make-sparse-keymap)))
+                                           (define-key map [header-line mouse-1] 'org-capture-kill)
+                                           map))))))))
       (make-frame `((name . ,eh-org-capture-frame-name)
+                    (window-system . ,frame-window-system)
                     (width . 100)
                     (height . 20)
                     (tool-bar-lines . 0)
@@ -149,7 +135,6 @@
 
   (advice-add 'org-capture :around #'eh-org-capture)
   (advice-add 'org-capture-finalize :after #'eh-org-capture-delete-frame)
-  (advice-add 'org-capture-destroy :after #'eh-org-capture-delete-frame)
   (advice-add 'org-switch-to-buffer-other-window :after #'eh-org-capture-delete-other-windows)
   )
 
