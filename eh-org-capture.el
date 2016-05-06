@@ -12,14 +12,6 @@
 ;;; Commentary:
 
 ;;  这个文件是tumashu个人专用的emacs配置文件，emacs中文用户可以参考。
-;;  使用方式：
-;;  1. 安装 [[https://github.com/nobuoka/AppLauncher][Firefox AppLauncher 扩展]]
-;;  2. 配置 AppLauncher
-;;     1. Name: org-capture
-;;     2. Path: /home/feng/emacs/bin/emacsclient
-;;     3. Args: --socket-name=sawfish-emacs-daemon
-;;              org-protocol://capture://f/&eurl;/&etitle;/&etext;
-;;     其中, "f" 代表 org-capture 使用 key 为 "f" 的模板
 
 ;;; License:
 
@@ -50,6 +42,8 @@
   (setq eh-org-account-file "~/org/i-account.org")
   (setq eh-org-journal-file "~/org/i-journal.org")
   (setq eh-org-schedule-file "~/org/i-schedule.org")
+
+  (use-package org-capture-pop-frame)
 
   ;; capture模板
   (setq org-capture-templates
@@ -92,59 +86,7 @@
 :PHONE:
 :EMAIL:
 :NOTE:
-:END:")))
-
-  (setq eh-org-capture-frame-name "tumashu-org-capture")
-
-  (defun eh-org-capture-delete-frame (&rest args)
-    "Close capture frame"
-    (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
-        (delete-frame)))
-
-  (defun eh-org-capture-delete-other-windows (&rest args)
-    "Delete the extra window if we're in a capture frame"
-    (if (equal eh-org-capture-frame-name (frame-parameter nil 'name))
-        (delete-other-windows)))
-
-  (defun eh-org-capture (orig-fun &optional goto keys)
-    "Create a new frame and run org-capture."
-    (interactive)
-    (let ((frame-window-system
-           (cond ((eq system-type 'darwin) 'ns)
-                 ((eq system-type 'gnu/linux) 'x)
-                 ((eq system-type 'windows-nt) 'w32)))
-          (after-make-frame-functions
-           #'(lambda (frame)
-               (progn
-                 (select-frame frame)
-                 (setq word-wrap nil)
-                 (setq truncate-lines nil)
-                 (funcall orig-fun goto keys)
-                 (setq header-line-format
-                       (list "Capture buffer. "
-                             (propertize (substitute-command-keys "Finish \\[org-capture-finalize], ")
-                                         'mouse-face 'mode-line-highlight
-                                         'keymap
-                                         (let ((map (make-sparse-keymap)))
-                                           (define-key map [header-line mouse-1] 'org-capture-finalize)
-                                           map))
-                             (propertize (substitute-command-keys "abort \\[org-capture-kill]. ")
-                                         'mouse-face 'mode-line-highlight
-                                         'keymap
-                                         (let ((map (make-sparse-keymap)))
-                                           (define-key map [header-line mouse-1] 'org-capture-kill)
-                                           map))))))))
-      (make-frame `((name . ,eh-org-capture-frame-name)
-                    (window-system . ,frame-window-system)
-                    (width . 100)
-                    (height . 20)
-                    (tool-bar-lines . 0)
-                    (menu-bar-lines . 1)))))
-
-  (advice-add 'org-capture :around #'eh-org-capture)
-  (advice-add 'org-capture-finalize :after #'eh-org-capture-delete-frame)
-  (advice-add 'org-switch-to-buffer-other-window :after #'eh-org-capture-delete-other-windows)
-  )
+:END:"))))
 
 (provide 'eh-org-capture)
 
