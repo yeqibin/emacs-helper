@@ -203,6 +203,9 @@
   (use-package org-screenshot
     :ensure nil)
 
+  (use-package ox-bibtex-chinese
+    :ensure nil)
+
   (use-package ob-R
     :ensure nil)
 

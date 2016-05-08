@@ -48,20 +48,20 @@
 
   ;; EMMS 目录
   (setq emms-source-file-default-directory "~/Music")
-  
+
   (unless (file-directory-p emms-source-file-default-directory)
     (make-directory (file-name-as-directory emms-source-file-default-directory)))
-  
+
   (setq emms-directory "~/Music/.emms/")
   (setq emms-history-file "~/Music/.emms/history")
   (setq emms-cache-file "~/Music/.emms/cache")
   (setq emms-stream-bookmarks-file "~/Music/.emms/streams")
   (setq emms-score-file "~/Music/.emms/scores")
 
-                                        ;设定EMMS主模式为Playlist模式
+  ;; 设定EMMS主模式为Playlist模式
   (setq emms-playlist-default-major-mode 'emms-playlist-mode)
 
-                                        ;修复播放完后的BUG
+  ;; 修复播放完后的BUG
   (setq emms-player-next-function 'emms-next)
 
   ;; 设定音轨初始化信息
@@ -112,7 +112,9 @@
 
 
   ;; Function used to format track
-  (setq emms-track-description-function (lambda (track) (concat " " (eh-emms-make-track-description track))))
+  (setq emms-track-description-function
+        #'(lambda (track)
+            (concat " " (eh-emms-make-track-description track))))
 
   ;; 设置Playlist的显示方式
   (setq emms-last-played-format-alist
@@ -189,8 +191,7 @@
       (emms-track-set track 'info-album-alias (pyim-hanzi2pinyin (emms-track-get track 'info-album) t))
       (emms-track-set track 'info-title-alias (pyim-hanzi2pinyin (emms-track-get track 'info-title) t))))
 
-;;; 设置EMMS 浏览器
-  ;; 默认显示方式为: 显示所有
+  ;; 设置EMMS 浏览器, 默认显示方式为: 显示所有
   (emms-browser-set-filter (assoc "EVERYTHING" emms-browser-filters))
   ;; filter: 显示所有
   (emms-browser-make-filter "EVERYTHING" 'ignore)
