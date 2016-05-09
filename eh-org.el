@@ -206,6 +206,9 @@
   (use-package ox-bibtex-chinese
     :ensure nil)
 
+  (use-package ebib-handy
+    :ensure nil)
+
   (use-package ob-R
     :ensure nil)
 
@@ -213,9 +216,6 @@
     :ensure nil
     :config
     (setq org-plantuml-jar-path "~/bin/plantuml.jar"))
-
-  (use-package eh-org-citation
-    :ensure nil)
 
   (use-package org-agenda
     :ensure nil
