@@ -1,6 +1,6 @@
 (load-library "eh-basic")
-;; (load-library "eh-org")
-;; (load-library "eh-bbdb3")
+(load-library "eh-org")
+(load-library "eh-bbdb3")
 (load-library "eh-complete")
 (load-library "eh-functions")
 (load-library "eh-elfeed")

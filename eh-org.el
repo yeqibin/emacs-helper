@@ -40,39 +40,17 @@
     ;; Export language
     (setq org-export-default-language "zh-CN"))
 
+  (use-package org-chinese-utils
+    :ensure nil
+    :config (org-chinese-utils-enable))
+
   (use-package ox-html
     :ensure nil
     :config
     ;; html
     (setq org-html-coding-system 'utf-8)
     (setq org-html-head-include-default-style t)
-    (setq org-html-head-include-scripts t)
-
-    ;; Chinese hack
-    (defun eh-org-clean-space (text backend info)
-      "在export为HTML时，删除中文之间不必要的空格"
-      (when (org-export-derived-backend-p backend 'html)
-        (let ((regexp "[[:multibyte:]]")
-              (string text))
-          ;; org默认将一个换行符转换为空格，但中文不需要这个空格，删除。
-          (setq string
-                (replace-regexp-in-string
-                 (format "\\(%s\\) *\n *\\(%s\\)" regexp regexp)
-                 "\\1\\2" string))
-          ;; 删除粗体之前的空格
-          (setq string
-                (replace-regexp-in-string
-                 (format "\\(%s\\) +\\(<\\)" regexp)
-                 "\\1\\2" string))
-          ;; 删除粗体之后的空格
-          (setq string
-                (replace-regexp-in-string
-                 (format "\\(>\\) +\\(%s\\)" regexp)
-                 "\\1\\2" string))
-          string)))
-
-    (add-to-list 'org-export-filter-paragraph-functions
-                 'eh-org-clean-space))
+    (setq org-html-head-include-scripts t))
 
   (use-package ox-latex
     :ensure nil
@@ -187,30 +165,6 @@
   (setq org-export-backends
         '(ascii beamer html latex md deck rss s5))
 
-  ;; truncate line depend context
-  (defun eh-org-truncate-lines (&optional arg)
-    (interactive "P")
-    (cond
-     ((or (and (boundp 'org-clock-overlays) org-clock-overlays)
-          org-occur-highlights)
-      (and (boundp 'org-clock-overlays) (org-clock-remove-overlays))
-      (org-remove-occur-highlights)
-      (org-remove-latex-fragment-image-overlays)
-      (message "Temporary highlights/overlays removed from current buffer"))
-     (t
-      (let* ((context (org-element-context)) (type (org-element-type context)))
-        (case type
-          ((table table-cell table-row item plain-list)
-           (toggle-truncate-lines 1))
-          (t (toggle-truncate-lines -1)))))))
-
-  (defun eh-org-ctrl-c-ctrl-c (&optional arg)
-    (interactive)
-    (eh-org-truncate-lines arg)
-    (org-ctrl-c-ctrl-c arg))
-
-  (org-defkey org-mode-map "\C-c\C-c" 'eh-org-ctrl-c-ctrl-c)
-
   ;; org默认使用"_下标"来定义一个下标，使用"^上标"定义一个上标，
   ;; 但这种方式在中文环境中与下划线冲突。
   ;; 这里强制使用"_{下标}"来定义一个下标。"^{上标}"来定义一个上标。
@@ -246,23 +200,7 @@
 
   (defun eh-org-babel-after-execute-function ()
     (when (not org-export-current-backend)
-      (org-display-inline-images)
-      (eh-org-babel-align-tables)))
-
-  (defun eh-org-babel-align-tables (&optional info)
-    "Align all tables in the result of the current source"
-    (interactive)
-    (let ((location (org-babel-where-is-src-block-result nil info)))
-      (when location
-        (save-excursion
-          (goto-char location)
-          (when (looking-at (concat org-babel-result-regexp ".*$"))
-            (while (< (point) (progn (forward-line 1) (org-babel-result-end)))
-              (when (org-at-table-p)
-                (toggle-truncate-lines 1)
-                (org-table-align)
-                (goto-char (org-table-end)))
-              (forward-line)))))))
+      (org-display-inline-images)))
 
   ;; 开启cdlatex
   (use-package cdlatex
