@@ -77,93 +77,15 @@
   (use-package ox-latex
     :ensure nil
     :config
-    ;; latex
-    (setq org-latex-coding-system 'utf-8)
     ;; 不要在latex输出文件中插入\maketitle
     (setq org-latex-title-command "")
     (setq org-latex-date-format "%Y-%m-%d")
     (setq org-export-with-LaTeX-fragments 'imagemagick)
-    (setq org-latex-create-formula-image-program 'imagemagick)
-    (setq org-latex-commands '(("xelatex -interaction nonstopmode -output-directory %o %f"
-                                "bibtex %b"
-                                "xelatex -interaction nonstopmode -output-directory %o %f"
-                                "xelatex -interaction nonstopmode -output-directory %o %f")
-                               ("xelatex -interaction nonstopmode -output-directory %o %f")))
+    (setq org-latex-create-formula-image-program 'imagemagick))
 
-    (setq org-latex-default-class "ctexart")
-
-    (add-to-list 'org-latex-classes
-                 '("ctexart"
-                   "\\documentclass[fontset=none,UTF8,a4paper,zihao=-4]{ctexart}"
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-
-    (add-to-list 'org-latex-classes
-                 '("ctexrep"
-                   "\\documentclass[fontset=none,UTF8,a4paper,zihao=-4]{ctexrep}"
-                   ("\\part{%s}" . "\\part*{%s}")
-                   ("\\chapter{%s}" . "\\chapter*{%s}")
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
-
-    (add-to-list 'org-latex-classes
-                 '("ctexbook"
-                   "\\documentclass[fontset=none,UTF8,a4paper,zihao=-4]{ctexbook}"
-                   ("\\part{%s}" . "\\part*{%s}")
-                   ("\\chapter{%s}" . "\\chapter*{%s}")
-                   ("\\section{%s}" . "\\section*{%s}")
-                   ("\\subsection{%s}" . "\\subsection*{%s}")
-                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
-
-    (add-to-list 'org-latex-classes
-                 '("beamer"
-                   "\\documentclass{beamer}
-               \\usepackage[fontset=none,UTF8,a4paper,zihao=-4]{ctex}"
-                   org-beamer-sectioning))
-
-    ;; org不建议自定义org-latex-default-package-alist变量，但"inputenc" and "fontenc"两个宏包似乎和
-    ;; xelatex有冲突，调整默认值！
-    (setf org-latex-default-packages-alist
-          (remove '("AUTO" "inputenc" t) org-latex-default-packages-alist))
-    (setf org-latex-default-packages-alist
-          (remove '("T1" "fontenc" t) org-latex-default-packages-alist))
-    (setf org-latex-default-packages-alist
-          (remove '("normalem" "ulem" t) org-latex-default-packages-alist))
-
-    (setq  org-latex-packages-alist
-           '("
-%%% 默认使用的latex宏包 %%%
-\\usepackage{tikz}
-\\usepackage{CJKulem}
-\\usepackage{graphicx}
-
-%%% 设置中文字体 %%%
-\\setCJKmainfont[ItalicFont={KaiTi_GB2312}]{SimSun}% 文鼎宋体和楷书
-\\setCJKsansfont{WenQuanYi Micro Hei}% 文泉驿的黑体
-\\setCJKmonofont{WenQuanYi Micro Hei}
-
-%%% 设置页面边距 %%%
-\\usepackage[top=2.54cm, bottom=2.54cm, left=3.17cm, right=3.17cm]{geometry} %
-"))
-
-    ;; latex公式预览, 调整latex预览时使用的header,默认使用ctexart类
-    (setq org-format-latex-header
-          (replace-regexp-in-string
-           "\\\\documentclass{.*}"
-           "\\\\documentclass[nofonts,UTF8]{ctexart}"
-           org-format-latex-header))
-
-    (defun eh-org-latex-compile (orig-fun texfile &optional snippet)
-      (let ((org-latex-pdf-process
-             (if snippet (car (cdr org-latex-commands))
-               (car org-latex-commands))))
-        (funcall orig-fun texfile snippet)))
-
-    (advice-add 'org-latex-compile :around #'eh-org-latex-compile))
+  (use-package ox-latex-chinese
+    :ensure nil
+    :config (oxlc/toggle-ox-latex-chinese t))
 
   (use-package ox-ascii
     :ensure nil)
