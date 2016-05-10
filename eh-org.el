@@ -74,7 +74,7 @@
     (add-to-list 'org-export-filter-paragraph-functions
                  'eh-org-clean-space))
 
-  (use-package ox-latex
+  (use-package ox-lhttps://github.com/melpa/melpa/pull/3878#issuecomment-218106193atex
     :ensure nil
     :config
     ;; 不要在latex输出文件中插入\maketitle
@@ -125,8 +125,12 @@
   (use-package org-screenshot
     :ensure nil)
 
-  (use-package ox-bibtex-chinese
+  (use-package ox-bibtex
     :ensure nil)
+
+  (use-package ox-bibtex-chinese
+    :ensure nil
+    :config (ox-bibtex-chinese-enable))
 
   (use-package ebib-handy
     :ensure nil)
