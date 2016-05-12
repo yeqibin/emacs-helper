@@ -70,6 +70,10 @@
 (use-package eh-emms
   :ensure nil)
 
+;; sql
+(use-package sql-mssql
+  :ensure nil)
+
 ;; xah-fly-keys
 (use-package xah-fly-keys
   :ensure nil
