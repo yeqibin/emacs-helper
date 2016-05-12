@@ -207,7 +207,7 @@
   :config
   (setq default-input-method "chinese-pyim")
   ;; 使用双拼
-  (setq pyim-default-pinyin-scheme 'pyim-shuangpin)
+  (setq pyim-default-pinyin-scheme 'default)
   (setq-default pyim-english-input-switch-functions
                 '(pyim-probe-dynamic-english
                   pyim-probe-isearch-mode
