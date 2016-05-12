@@ -58,8 +58,10 @@
     ;; 不要在latex输出文件中插入\maketitle
     (setq org-latex-title-command "")
     (setq org-latex-date-format "%Y-%m-%d")
-    (setq org-export-with-LaTeX-fragments 'imagemagick)
-    (setq org-latex-create-formula-image-program 'imagemagick))
+    ;; (setq org-latex-create-formula-image-program 'imagemagick)  ;默认支持中文
+    (setq org-latex-create-formula-image-program 'dvipng)          ;速度较快，但默认不支持中文
+    (setq org-format-latex-options
+          (plist-put org-format-latex-options :scale 1.5)))
 
   (use-package ox-latex-chinese
     :ensure nil
