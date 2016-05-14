@@ -61,7 +61,9 @@
     ;; (setq org-latex-create-formula-image-program 'imagemagick)  ;默认支持中文
     (setq org-latex-create-formula-image-program 'dvipng)          ;速度较快，但默认不支持中文
     (setq org-format-latex-options
-          (plist-put org-format-latex-options :scale 2.5)))
+          (plist-put org-format-latex-options :scale 2.5))
+    (setq org-format-latex-options
+          (plist-put org-format-latex-options :html-scale 2.5)))
 
   (use-package ox-latex-chinese
     :ensure nil
