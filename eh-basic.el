@@ -147,7 +147,10 @@
   (use-package whitespace
     :ensure nil
     :config
-    (add-hook 'before-save-hook 'whitespace-cleanup))
+    ;; 开启这个 hook 后，org-mode 的源代码总是莫名其妙的
+    ;; 被更改，导致 diff 相当乱，暂时禁用吧。
+    ;; (add-hook 'before-save-hook 'whitespace-cleanup)
+    )
   (use-package simple
     :ensure nil
     :config
