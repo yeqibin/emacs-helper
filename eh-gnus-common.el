@@ -388,96 +388,50 @@
 
   (add-hook 'gnus-summary-mode-hook 'eh-gnus-summary-setup)
 
-  (defun eh-gnus-parse-netrc-file (file)
-    "Parse netrc-file `file'."
-    (when (file-exists-p file)
-      (with-temp-buffer
-        (let ((tokens '("machine" "login" "account" "port"
-                        "user-full-name" "user-mail-address"))
-              alist elem result pair)
-          (insert-file-contents file)
-          (goto-char (point-min))
-          ;; Go through the file, line by line.
-          (while (not (eobp))
-            (narrow-to-region (point) (point-at-eol))
-            ;; For each line, get the tokens and values.
-            (while (not (eobp))
-              (skip-chars-forward "\t ")
-              ;; Skip lines that begin with a "#".
-              (if (eq (char-after) ?#)
-                  (goto-char (point-max))
-                (unless (eobp)
-                  (setq elem
-                        (if (= (following-char) ?\")
-                            (read (current-buffer))
-                          (buffer-substring
-                           (point) (progn (skip-chars-forward "^\t ")
-                                          (point)))))
-                  (cond
-                   ((member elem tokens)
-                    ;; Tokens that don't have a following value are ignored,
-                    ;; except "default".
-                    (when (and pair (or (cdr pair)
-                                        (equal (car pair) "default")))
-                      (push pair alist))
-                    (setq pair (list elem)))
-                   (t
-                    ;; Values that haven't got a preceding token are ignored.
-                    (when pair
-                      (setcdr pair elem)
-                      (push pair alist)
-                      (setq pair nil)))))))
-            (when alist
-              (push (nreverse alist) result))
-            (setq alist nil
-                  pair nil)
-            (widen)
-            (forward-line 1))
-          (nreverse result)))))
-
   (defun eh-gnus-select-mail-account ()
     (interactive)
-    (let* ((netrc-info
-            (eh-gnus-parse-netrc-file
-             (expand-file-name "~/.authinfo.gpg")))
+    (let* ((accounts-info
+            `(("# None")
+              ("# Sendmail" :type sendmail)
+              ,@(mapcar
+                 #'(lambda (account)
+                     (let* ((user (plist-get account :user))
+                            (host (plist-get account :host))
+                            (port (plist-get account :port))
+                            (user-full-name (plist-get account :user-full-name))
+                            (user-mail-address (plist-get account :user-mail-address))
+                            (name (or user-mail-address
+                                      (if (string-match-p "@" user)
+                                          user
+                                        (concat user "@" host)))))
+                       `(,name :type imap :user ,user :port ,port :host ,host
+                               :user-full-name ,user-full-name
+                               :user-mail-address ,(or user-mail-address name))))
+                 (auth-source-search :port '("smtp" "25" "465" "587")))))
            (account-used
-            (completing-read "Which account will be used? "
-                             `("# None"
-                               ,@(delq nil
-                                       (mapcar
-                                        #'(lambda (x)
-                                            (cdr (assoc "user-mail-address" x)))
-                                        netrc-info))
-                               "# Sendmail")))
-           (account-info
-            (when account-used
-              (car (delq nil
-                         (mapcar
-                          #'(lambda (x)
-                              (cond
-                               ((and (not (string= account-used "# None"))
-                                     (member `("user-mail-address" . ,account-used) x))
-                                x)
-                               ((string= account-used "# Sendmail")
-                                'sendmail)))
-                          netrc-info))))))
-
-      (when account-info
-        (message-replace-header
-         "X-Message-SMTP-Method"
-         (if (eq account-info 'sendmail)
-             "sendmail"
-           (format "smtp %s %s %s"
-                   (cdr (assoc "machine" account-info))
-                   (cdr (assoc "port" account-info))
-                   (cdr (assoc "login" account-info)))) nil t)
-        (message-replace-header
-         "From"
-         (if (eq account-info 'sendmail)
-             "localhost"
-           (format "\"%s\" <%s>"
-                   (cdr (assoc "user-full-name" account-info))
-                   (cdr (assoc "user-mail-address" account-info)))) nil t)
+            (cdr (assoc (completing-read
+                         "Which account will be used? "
+                         (mapcar #'car accounts-info))
+                        accounts-info)))
+           (type (plist-get account-used :type))
+           (user (plist-get account-used :user))
+           (port (plist-get account-used :port))
+           (host (plist-get account-used :host))
+           (user-full-name (plist-get account-used :user-full-name))
+           (user-mail-address (plist-get account-used :user-mail-address)))
+      (when type
+        (if (eq type 'sendmail)
+            (progn (message-replace-header
+                    "X-Message-SMTP-Method" "sendmail" nil t)
+                   (message-replace-header "From" "localhost" nil t))
+          (message-replace-header
+           "X-Message-SMTP-Method"
+           (format "smtp %s %s %s" host port user) nil t)
+          (if user-full-name
+              (message-replace-header
+               "From" (format "\"%s\" <%s>" user-full-name user-mail-address) nil t)
+            (message-replace-header
+             "From" user-mail-address nil t)))
         ;; Sort headers
         (let ((message-header-format-alist
                `((To)
