@@ -1,28 +1,16 @@
-;; 从authinfo文件中解析密码，避免密码明文保存
-(defun eh-gnus-get-password (host port)
-  (let* ((authinfo (netrc-parse (expand-file-name "~/.authinfo.gpg")))
-         (hostentry (netrc-machine authinfo host (format "%s" port) port)))
-    (when hostentry (netrc-get hostentry "password"))))
-
 ;; Gnus邮件设置。
 (setq gnus-select-method '(nnml ""))
 (setq mail-sources
       `((pop :server "pop.163.com"
              :user "myname@163.com"
              :port 995
-             :password ,(eh-gnus-get-password "pop.163.com" 995)
              :stream ssl
              :leave t)
         (imap :server "imap.qq.com"
               :user "myname@qq.com"
               :port 993
-              :password ,(eh-gnus-get-password "imap.qq.com" 993)
               :stream ssl
               :fetchflag "\\Seen")))
-
-;; 使用offlineimap, leafnode以及rss2email
-;; 将邮件，新闻组和rss订阅同步到本地dovecot服务器
-;; 然后使用gnus访问。
 
 (add-to-list 'gnus-secondary-select-methods
              '(nntp "news.gmane.org"))
