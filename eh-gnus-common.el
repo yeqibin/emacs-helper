@@ -407,7 +407,7 @@
                        `(,name :type imap :user ,user :port ,port :host ,host
                                :user-full-name ,user-full-name
                                :user-mail-address ,(or user-mail-address name))))
-                 (auth-source-search :port '("smtp" "25" "465" "587")))))
+                 (auth-source-search :max 1000 :port '("smtp" "25" "465" "587")))))
            (account-used
             (cdr (assoc (completing-read
                          "Which account will be used? "
