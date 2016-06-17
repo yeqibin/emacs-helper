@@ -33,6 +33,9 @@
 (use-package elfeed
   :config
   (setq elfeed-use-curl t)
+  ;; shr-use-fonts 让 eww 可以使用非等宽字体，
+  ;; 不过这个功能和 chinese-fonts-setup 配合不好。
+  (setq shr-use-fonts nil)
   (setq elfeed-feeds
         '("http://nullprogram.com/feed/"
           "http://www.terminally-incoherent.com/blog/feed/"
