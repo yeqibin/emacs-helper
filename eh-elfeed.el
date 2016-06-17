@@ -31,8 +31,8 @@
 
 ;;; Code:
 (use-package elfeed
-  :init (setq url-queue-timeout 30)
   :config
+  (setq elfeed-use-curl t)
   (setq elfeed-feeds
         '("http://nullprogram.com/feed/"
           "http://www.terminally-incoherent.com/blog/feed/"
