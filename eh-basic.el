@@ -209,7 +209,9 @@
   :ensure nil
   :config
   ;; 激活 basedict 词库
-  (chinese-pyim-basedict-enable)
+  (use-package chinese-pyim-basedict
+    :ensure nil
+    :config (chinese-pyim-basedict-enable))
   (setq default-input-method "chinese-pyim")
   ;; 使用双拼
   (setq pyim-default-pinyin-scheme 'default)
