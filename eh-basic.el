@@ -67,8 +67,10 @@
         ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
         ("gnu-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
 
+(setq package-unsigned-archives
+      (mapcar #'car package-archives))
+
 (package-initialize)
-(setq package-unsigned-archives '("gnu"))
 
 ;; use-package
 (require 'use-package)
